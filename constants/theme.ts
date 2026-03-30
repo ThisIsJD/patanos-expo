@@ -1,53 +1,69 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Patanos brand system — "Electric Mango" dark theme
+ * Design tokens from SKILLS/patanos-brand-system/references/design-tokens.md
  */
 
-import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
 export const Colors = {
+  // Keep light for compatibility, but app defaults to dark
   light: {
     text: '#11181C',
     background: '#fff',
-    tint: tintColorLight,
+    tint: '#F5C518',
     icon: '#687076',
     tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    tabIconSelected: '#F5C518',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    // Backgrounds (darkest → lightest)
+    bgPrimary: '#0A0A0A',
+    bgSecondary: '#141414',
+    bgSurface: '#1E1E1E',
+    bgElevated: '#252525',
+
+    // Gold accents
+    accentGold: '#F5C518',
+    accentGoldDark: '#D4A812',
+    accentGoldSoft: 'rgba(245, 197, 24, 0.15)',
+
+    // Text
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A0A0A0',
+    textMuted: '#666666',
+    textOnGold: '#0A0A0A',
+
+    // Borders
+    borderSubtle: '#2A2A2A',
+    borderGold: 'rgba(245, 197, 24, 0.3)',
+
+    // Semantic
+    success: '#4CAF50',
+    warning: '#F5C518',
+    error: '#E53935',
+    info: '#42A5F5',
+
+    // Navigation compat (used by existing components)
+    text: '#FFFFFF',
+    background: '#0A0A0A',
+    tint: '#F5C518',
+    icon: '#A0A0A0',
+    tabIconDefault: '#666666',
+    tabIconSelected: '#F5C518',
   },
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+};
+
+export const Radius = {
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  full: 9999,
+};

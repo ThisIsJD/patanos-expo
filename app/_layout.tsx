@@ -1,24 +1,72 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
+import {
+  PermanentMarker_400Regular,
+} from '@expo-google-fonts/permanent-marker';
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { Colors } from '@/constants/theme';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootNavigator() {
+  const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuth = segments[0] === '(auth)';
+
+    if (!session && !inAuth) {
+      router.replace('/(auth)/login');
+    } else if (session && inAuth) {
+      router.replace('/(admin)/menu');
+    }
+  }, [session, loading, segments]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: Colors.dark.bgPrimary },
+      }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(admin)" />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    PermanentMarker: PermanentMarker_400Regular,
+    DMSans: DMSans_400Regular,
+    'DMSans-Medium': DMSans_500Medium,
+    'DMSans-Bold': DMSans_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  return (
+    <AuthProvider>
+      <RootNavigator />
+      <StatusBar style="light" />
+    </AuthProvider>
   );
 }
