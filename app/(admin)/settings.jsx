@@ -1,17 +1,17 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
-import { Colors, Spacing, Radius } from '@/constants/theme';
+import React from 'react'
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
+import { useAuth } from '@/src/contexts/AuthContext'
+import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 
 export default function SettingsScreen() {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut } = useAuth()
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Sign Out', style: 'destructive', onPress: signOut },
-    ]);
-  };
+    ])
+  }
 
   return (
     <View style={styles.container}>
@@ -38,24 +38,24 @@ export default function SettingsScreen() {
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.bgPrimary,
-    padding: Spacing.md,
+    backgroundColor: COLORS.bgPrimary,
+    padding: SPACING.md,
   },
   section: {
-    backgroundColor: Colors.dark.bgSurface,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
-    gap: Spacing.md,
-    marginBottom: Spacing.lg,
+    backgroundColor: COLORS.bgCard,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    gap: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   sectionTitle: {
-    color: Colors.dark.accentGold,
+    color: COLORS.accentGold,
     fontFamily: 'DMSans',
     fontSize: 14,
     fontWeight: '700',
@@ -68,31 +68,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    color: Colors.dark.textSecondary,
+    color: COLORS.textSecondary,
     fontFamily: 'DMSans',
     fontSize: 14,
   },
   value: {
-    color: Colors.dark.textPrimary,
+    color: COLORS.textPrimary,
     fontFamily: 'DMSans',
     fontSize: 14,
   },
   roleBadge: {
-    color: Colors.dark.accentGold,
+    color: COLORS.accentGold,
     fontWeight: '700',
   },
   signOutButton: {
-    backgroundColor: Colors.dark.bgSurface,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
+    backgroundColor: COLORS.bgCard,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.dark.error,
+    borderColor: COLORS.error,
   },
   signOutText: {
-    color: Colors.dark.error,
+    color: COLORS.error,
     fontFamily: 'DMSans',
     fontSize: 16,
     fontWeight: '700',
   },
-});
+})

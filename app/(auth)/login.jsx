@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   StyleSheet,
   View,
@@ -9,32 +9,32 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-} from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
-import { Colors } from '@/constants/theme';
+} from 'react-native'
+import { useAuth } from '@/src/contexts/AuthContext'
+import { COLORS } from '@/src/constants/theme'
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Please enter email and password');
-      return;
+      setError('Please enter email and password')
+      return
     }
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
-    const { error: signInError } = await signIn(email.trim(), password);
+    const { error: signInError } = await signIn(email.trim(), password)
     if (signInError) {
-      setError(signInError);
+      setError(signInError)
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <KeyboardAvoidingView
@@ -43,7 +43,7 @@ export default function LoginScreen() {
       <View style={styles.inner}>
         {/* Brand logo */}
         <Image
-          source={require('@/assets/images/Patanos_logo.png')}
+          source={require('@/assets/brand/patanos-logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -53,7 +53,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={Colors.dark.textMuted}
+            placeholderTextColor={COLORS.textMuted}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -63,7 +63,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={Colors.dark.textMuted}
+            placeholderTextColor={COLORS.textMuted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -77,7 +77,7 @@ export default function LoginScreen() {
             disabled={loading}
             activeOpacity={0.8}>
             {loading ? (
-              <ActivityIndicator color={Colors.dark.textOnGold} />
+              <ActivityIndicator color={COLORS.textOnGold} />
             ) : (
               <Text style={styles.buttonText}>Sign In</Text>
             )}
@@ -85,13 +85,13 @@ export default function LoginScreen() {
         </View>
       </View>
     </KeyboardAvoidingView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.bgPrimary,
+    backgroundColor: COLORS.bgPrimary,
   },
   inner: {
     flex: 1,
@@ -108,23 +108,23 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   input: {
-    backgroundColor: Colors.dark.bgSurface,
+    backgroundColor: COLORS.bgCard,
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
-    color: Colors.dark.textPrimary,
+    color: COLORS.textPrimary,
     fontFamily: 'DMSans',
     borderWidth: 1,
-    borderColor: Colors.dark.borderSubtle,
+    borderColor: COLORS.border,
   },
   error: {
-    color: Colors.dark.error,
+    color: COLORS.error,
     fontSize: 14,
     fontFamily: 'DMSans',
     textAlign: 'center',
   },
   button: {
-    backgroundColor: Colors.dark.accentGold,
+    backgroundColor: COLORS.accentGold,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: Colors.dark.textOnGold,
+    color: COLORS.textOnGold,
     fontSize: 16,
     fontWeight: '700',
     fontFamily: 'DMSans',
   },
-});
+})

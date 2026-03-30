@@ -1,33 +1,33 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'react-native';
-import { Colors } from '@/constants/theme';
+import { Tabs } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
+import { Image } from 'react-native'
+import { COLORS } from '@/src/constants/theme'
 
 function HeaderLogo() {
   return (
     <Image
-      source={require('@/assets/images/Patanos_logo.png')}
+      source={require('@/assets/brand/patanos-logo.png')}
       style={{ width: 32, height: 32 }}
       resizeMode="contain"
     />
-  );
+  )
 }
 
 export default function AdminLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.dark.bgSecondary },
-        headerTintColor: Colors.dark.textPrimary,
+        headerStyle: { backgroundColor: COLORS.bgSecondary },
+        headerTintColor: COLORS.textPrimary,
         headerTitleStyle: { fontFamily: 'DMSans', fontWeight: '700' },
         headerLeft: () => <HeaderLogo />,
         headerLeftContainerStyle: { paddingLeft: 16 },
         tabBarStyle: {
-          backgroundColor: Colors.dark.bgSecondary,
-          borderTopColor: Colors.dark.borderSubtle,
+          backgroundColor: COLORS.bgSecondary,
+          borderTopColor: COLORS.border,
         },
-        tabBarActiveTintColor: Colors.dark.accentGold,
-        tabBarInactiveTintColor: Colors.dark.textMuted,
+        tabBarActiveTintColor: COLORS.accentGold,
+        tabBarInactiveTintColor: COLORS.textMuted,
         tabBarLabelStyle: { fontFamily: 'DMSans', fontSize: 12 },
       }}>
       <Tabs.Screen
@@ -58,5 +58,5 @@ export default function AdminLayout() {
         }}
       />
     </Tabs>
-  );
+  )
 }

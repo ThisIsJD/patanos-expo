@@ -4,7 +4,7 @@
     "slug": "patanos-expo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Patanos_logo.png",
+    "icon": "./assets/brand/patanos-logo.png",
     "scheme": "patanosexpo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,21 +15,21 @@
       "package": "com.patanos.app",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A",
-        "foregroundImage": "./assets/images/Patanos_logo.png"
+        "foregroundImage": "./assets/brand/patanos-logo.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/Patanos_logo.png"
+      "favicon": "./assets/brand/patanos-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Patanos_logo.png",
+          "image": "./assets/brand/patanos-logo.png",
           "imageWidth": 280,
           "resizeMode": "contain",
           "backgroundColor": "#0A0A0A"
@@ -38,7 +38,6 @@
       "expo-font"
     ],
     "experiments": {
-      "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
