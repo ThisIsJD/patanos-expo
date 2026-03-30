@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors } from '@/constants/theme';
@@ -40,9 +41,12 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.inner}>
-        {/* Brand header */}
-        <Text style={styles.brand}>PATANOS</Text>
-        <Text style={styles.subtitle}>Sip Sensations</Text>
+        {/* Brand logo */}
+        <Image
+          source={require('@/assets/images/Patanos_logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
         {/* Login form */}
         <View style={styles.form}>
@@ -94,19 +98,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
   },
-  brand: {
-    fontFamily: 'PermanentMarker',
-    fontSize: 40,
-    color: Colors.dark.accentGold,
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
-  subtitle: {
-    fontFamily: 'DMSans',
-    fontSize: 16,
-    color: Colors.dark.textSecondary,
-    textAlign: 'center',
-    marginBottom: 48,
+  logo: {
+    width: 160,
+    height: 160,
+    alignSelf: 'center',
+    marginBottom: 32,
   },
   form: {
     gap: 16,
