@@ -40,6 +40,15 @@ export default function AdminLayout() {
         }}
       />
       <Tabs.Screen
+        name="modifiers"
+        options={{
+          title: 'Modifiers',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="options-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="gallery"
         options={{
           title: 'Gallery',
