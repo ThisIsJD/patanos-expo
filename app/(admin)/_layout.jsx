@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router'
+import { Tabs, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { Image } from 'react-native'
+import { Image, TouchableOpacity } from 'react-native'
 import { COLORS } from '@/src/constants/theme'
 
 function HeaderLogo() {
@@ -13,6 +13,18 @@ function HeaderLogo() {
   )
 }
 
+function POSButton() {
+  const router = useRouter()
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('/(pos)/order')}
+      style={{ paddingRight: 16 }}
+      hitSlop={8}>
+      <Ionicons name="cart" size={24} color={COLORS.accentGold} />
+    </TouchableOpacity>
+  )
+}
+
 export default function AdminLayout() {
   return (
     <Tabs
@@ -22,6 +34,7 @@ export default function AdminLayout() {
         headerTitleStyle: { fontFamily: 'DMSans', fontWeight: '700' },
         headerLeft: () => <HeaderLogo />,
         headerLeftContainerStyle: { paddingLeft: 16 },
+        headerRight: () => <POSButton />,
         tabBarStyle: {
           backgroundColor: COLORS.bgSecondary,
           borderTopColor: COLORS.border,

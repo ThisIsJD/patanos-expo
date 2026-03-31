@@ -19,7 +19,7 @@ import { COLORS } from '@/src/constants/theme'
 SplashScreen.preventAutoHideAsync()
 
 function RootNavigator() {
-  const { session, loading } = useAuth()
+  const { session, role, loading } = useAuth()
   const segments = useSegments()
   const router = useRouter()
 
@@ -27,13 +27,23 @@ function RootNavigator() {
     if (loading) return
 
     const inAuth = segments[0] === '(auth)'
+    const inAdmin = segments[0] === '(admin)'
+    const inPOS = segments[0] === '(pos)'
 
     if (!session && !inAuth) {
       router.replace('/(auth)/login')
     } else if (session && inAuth) {
-      router.replace('/(admin)/menu')
+      // Route based on role after login
+      if (role === 'cashier') {
+        router.replace('/(pos)/order')
+      } else {
+        router.replace('/(admin)/menu')
+      }
+    } else if (session && role === 'cashier' && inAdmin) {
+      // Cashiers cannot access admin screens
+      router.replace('/(pos)/order')
     }
-  }, [session, loading, segments])
+  }, [session, role, loading, segments])
 
   return (
     <Stack
