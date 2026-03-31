@@ -34,7 +34,7 @@ export default function MenuGrid({ items, categories, selectedCategory, onItemPr
 
   // Filter, then group duplicates by name + category
   const grouped = useMemo(() => {
-    let list = items.filter(i => i.status === 'published' && i.available !== false)
+    let list = items.filter(i => i.status === 'published')
     if (selectedCategory) {
       list = list.filter(i => i.category_id === selectedCategory)
     }
@@ -42,6 +42,7 @@ export default function MenuGrid({ items, categories, selectedCategory, onItemPr
   }, [items, categories, selectedCategory])
 
   const renderItem = ({ item: group }) => {
+    const isUnavailable = group.variants.every(v => v.available === false)
     const prices = group.variants.map(v => parseFloat(v.price))
     const minPrice = Math.min(...prices)
     const maxPrice = Math.max(...prices)
@@ -51,22 +52,28 @@ export default function MenuGrid({ items, categories, selectedCategory, onItemPr
 
     return (
       <TouchableOpacity
-        style={[styles.card, { width: cardWidth }]}
-        activeOpacity={0.7}
-        onPress={() => onItemPress(group.variants[0])}>
+        style={[styles.card, { width: cardWidth }, isUnavailable && styles.cardUnavailable]}
+        activeOpacity={isUnavailable ? 1 : 0.7}
+        onPress={isUnavailable ? undefined : () => onItemPress(group.variants[0])}
+        disabled={isUnavailable}>
         {group.image_url ? (
-          <Image source={{ uri: group.image_url }} style={styles.image} />
+          <Image source={{ uri: group.image_url }} style={[styles.image, isUnavailable && styles.imageUnavailable]} />
         ) : (
-          <View style={[styles.image, styles.placeholder]}>
+          <View style={[styles.image, styles.placeholder, isUnavailable && styles.imageUnavailable]}>
             <Ionicons name="cafe-outline" size={28} color={COLORS.textMuted} />
           </View>
         )}
+        {isUnavailable && (
+          <View style={styles.unavailableBadge}>
+            <Text style={styles.unavailableText}>Unavailable</Text>
+          </View>
+        )}
         <View style={styles.info}>
-          <Text style={styles.name} numberOfLines={1}>{group.name}</Text>
+          <Text style={[styles.name, isUnavailable && styles.textUnavailable]} numberOfLines={1}>{group.name}</Text>
           {group.variants.length > 1 && (
-            <Text style={styles.size}>{group.variants.length} sizes</Text>
+            <Text style={[styles.size, isUnavailable && styles.textUnavailable]}>{group.variants.length} sizes</Text>
           )}
-          <Text style={styles.price}>{priceLabel}</Text>
+          <Text style={[styles.price, isUnavailable && styles.textUnavailable]}>{priceLabel}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -138,6 +145,34 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-Bold',
     fontSize: 14,
     marginTop: 4,
+  },
+  cardUnavailable: {
+    opacity: 0.5,
+  },
+  imageUnavailable: {
+    opacity: 0.4,
+  },
+  unavailableBadge: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  unavailableText: {
+    color: COLORS.textPrimary,
+    fontFamily: 'DMSans-Bold',
+    fontSize: 12,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.sm,
+    overflow: 'hidden',
+  },
+  textUnavailable: {
+    color: COLORS.textMuted,
   },
   empty: {
     flex: 1,

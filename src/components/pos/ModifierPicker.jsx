@@ -43,7 +43,9 @@ export default function ModifierPicker({ item, visible, onAdd, onClose, allItems
     if (!item || !visible) return
     setSelectedModifiers([])
     setQuantity(1)
-    setSelectedVariant(variants.length > 1 ? item : item)
+    // Default to first available variant
+    const firstAvailable = variants.find(v => v.available !== false) || variants[0]
+    setSelectedVariant(firstAvailable)
 
     const fetchModifiers = async () => {
       // Match: global groups (no category or item filter), category-level, or item-level
@@ -131,15 +133,18 @@ export default function ModifierPicker({ item, visible, onAdd, onClose, allItems
                 <View style={styles.chipRow}>
                   {variants.map(v => {
                     const isActive = selectedVariant?.id === v.id
+                    const isUnavailable = v.available === false
                     return (
                       <TouchableOpacity
                         key={v.id}
-                        style={[styles.chip, isActive && styles.chipActive]}
-                        onPress={() => setSelectedVariant(v)}>
-                        <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                          {v.size_label || 'Regular'}
+                        style={[styles.chip, isActive && styles.chipActive, isUnavailable && styles.chipUnavailable]}
+                        onPress={isUnavailable ? undefined : () => setSelectedVariant(v)}
+                        disabled={isUnavailable}
+                        activeOpacity={isUnavailable ? 1 : 0.7}>
+                        <Text style={[styles.chipText, isActive && styles.chipTextActive, isUnavailable && styles.chipTextUnavailable]}>
+                          {v.size_label || 'Regular'}{isUnavailable ? ' (Unavailable)' : ''}
                         </Text>
-                        <Text style={[styles.chipPrice, isActive && styles.chipTextActive]}>
+                        <Text style={[styles.chipPrice, isActive && styles.chipTextActive, isUnavailable && styles.chipTextUnavailable]}>
                           {formatPrice(v.price)}
                         </Text>
                       </TouchableOpacity>
@@ -304,6 +309,13 @@ const styles = StyleSheet.create({
   },
   chipTextActive: {
     color: COLORS.accentGold,
+  },
+  chipUnavailable: {
+    opacity: 0.4,
+    borderStyle: 'dashed',
+  },
+  chipTextUnavailable: {
+    color: COLORS.textMuted,
   },
   chipPrice: {
     color: COLORS.textMuted,
