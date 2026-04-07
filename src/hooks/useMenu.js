@@ -1,8 +1,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Alert } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { supabase } from '@/src/lib/supabase'
 import { groupMenu } from '@/src/utils/groupMenu'
 import { uploadImage } from '@/src/utils/imageUpload'
+
+const MENU_CACHE_KEY = 'patanos_menu_cache'
+const CATEGORIES_CACHE_KEY = 'patanos_categories_cache'
 
 export function useMenu() {
   const [items, setItems] = useState([])
@@ -23,9 +27,31 @@ export function useMenu() {
         .order('sort_order', { ascending: true }),
     ])
 
-    if (menuRes.data) setItems(menuRes.data)
-    if (catRes.data) setCategories(catRes.data)
+    if (menuRes.data) {
+      setItems(menuRes.data)
+      AsyncStorage.setItem(MENU_CACHE_KEY, JSON.stringify(menuRes.data)).catch(() => {})
+    }
+    if (catRes.data) {
+      setCategories(catRes.data)
+      AsyncStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(catRes.data)).catch(() => {})
+    }
     setLoading(false)
+  }, [])
+
+  // Load cached data first, then fetch fresh
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const [cachedMenu, cachedCats] = await Promise.all([
+          AsyncStorage.getItem(MENU_CACHE_KEY),
+          AsyncStorage.getItem(CATEGORIES_CACHE_KEY),
+        ])
+        if (cachedMenu) setItems(JSON.parse(cachedMenu))
+        if (cachedCats) setCategories(JSON.parse(cachedCats))
+        if (cachedMenu || cachedCats) setLoading(false)
+      } catch {}
+    }
+    loadCache()
   }, [])
 
   useEffect(() => {

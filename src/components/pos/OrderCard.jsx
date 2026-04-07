@@ -18,7 +18,7 @@ import { formatPrice } from '@/src/utils/formatPrice'
  * @param {() => void} props.onCancel
  * @param {boolean} [props.completed] - render in completed-order style
  */
-export default function OrderCard({ order, onCollectPayment, onCancel, completed = false }) {
+export default function OrderCard({ order, onCollectPayment, onCancel, completed = false, queued = false }) {
   const [expanded, setExpanded] = useState(false)
 
   const timeAgo = () => {
@@ -32,17 +32,37 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
   const orderItems = order.order_items || []
 
   return (
-    <View style={[styles.card, completed && styles.cardCompleted]}>
+    <View style={[styles.card, completed && styles.cardCompleted, queued && styles.cardQueued]}>
       {/* Header row — tap to expand */}
       <TouchableOpacity
         style={styles.headerRow}
         onPress={() => setExpanded(!expanded)}
         activeOpacity={0.7}>
-        <View style={styles.orderBadge}>
+        <View style={[styles.orderBadge, queued && styles.queuedBadge]}>
           <Text style={styles.orderNumber}>#{order.order_number}</Text>
         </View>
         <View style={{ flex: 1, marginLeft: SPACING.sm }}>
-          <Text style={styles.timeText}>{timeAgo()}</Text>
+          <View style={styles.headerMeta}>
+            <Text style={styles.timeText}>{timeAgo()}</Text>
+            {order.order_type && (
+              <View style={styles.orderTypeBadge}>
+                <Ionicons
+                  name={
+                    order.order_type === 'dine-in' ? 'restaurant-outline'
+                      : order.order_type === 'delivery' ? 'bicycle-outline'
+                        : 'bag-handle-outline'
+                  }
+                  size={11}
+                  color={COLORS.textSecondary}
+                />
+                <Text style={styles.orderTypeLabel}>
+                  {order.order_type === 'dine-in' ? 'Dine-in'
+                    : order.order_type === 'delivery' ? 'Delivery'
+                      : 'Takeout'}
+                </Text>
+              </View>
+            )}
+          </View>
           <Text style={styles.itemSummary} numberOfLines={1}>
             {orderItems.map(i => `${i.quantity}× ${i.item_name}`).join(', ')}
           </Text>
@@ -73,7 +93,7 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
                   </Text>
                 )}
               </View>
-              <Text style={styles.detailPrice}>{formatPrice(item.subtotal)}</Text>
+              <Text style={styles.detailPrice}>{formatPrice(item.subtotal || item.unit_price * item.quantity)}</Text>
             </View>
           ))}
 
@@ -82,7 +102,7 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
           ) : null}
 
           {/* Actions */}
-          {!completed && (
+          {!completed && !queued && (
             <View style={styles.actions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
                 <Ionicons name="close-circle-outline" size={18} color={COLORS.error} />
@@ -92,6 +112,14 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
                 <Ionicons name="cash-outline" size={18} color={COLORS.textOnGold} />
                 <Text style={styles.payBtnText}>Collect Payment</Text>
               </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Queued info */}
+          {queued && (
+            <View style={styles.queuedInfo}>
+              <Ionicons name="cloud-offline-outline" size={16} color={COLORS.textMuted} />
+              <Text style={styles.queuedLabel}>Waiting to sync when online</Text>
             </View>
           )}
 
@@ -127,6 +155,26 @@ const styles = StyleSheet.create({
   cardCompleted: {
     opacity: 0.7,
   },
+  cardQueued: {
+    borderColor: '#D32F2F44',
+    borderStyle: 'dashed',
+  },
+  queuedBadge: {
+    backgroundColor: '#D32F2F',
+  },
+  queuedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  queuedLabel: {
+    color: COLORS.textMuted,
+    fontFamily: 'DMSans',
+    fontSize: 12,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -147,6 +195,25 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontFamily: 'DMSans',
     fontSize: 11,
+  },
+  headerMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  orderTypeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: COLORS.bgElevated,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+  },
+  orderTypeLabel: {
+    color: COLORS.textSecondary,
+    fontFamily: 'DMSans',
+    fontSize: 10,
   },
   itemSummary: {
     color: COLORS.textSecondary,

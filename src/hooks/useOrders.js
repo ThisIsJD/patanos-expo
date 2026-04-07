@@ -1,13 +1,19 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Alert } from 'react-native'
 import { supabase } from '@/src/lib/supabase'
 import { useAuth } from '@/src/contexts/AuthContext'
+import { useNetworkStatus } from '@/src/hooks/useNetworkStatus'
+import { enqueue, getQueue, syncQueue } from '@/src/lib/offlineQueue'
 
 export function useOrders() {
   const { session } = useAuth()
+  const { isOnline, onStatusChange } = useNetworkStatus()
   const [openOrders, setOpenOrders] = useState([])
   const [completedOrders, setCompletedOrders] = useState([])
+  const [queuedOrders, setQueuedOrders] = useState([])
+  const [pendingCount, setPendingCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const syncing = useRef(false)
 
   const todayStart = () => {
     const d = new Date()
@@ -55,15 +61,9 @@ export function useOrders() {
   }, [fetchOrders])
 
   /**
-   * Place a new order.
-   * @param {object} params
-   * @param {Array} params.items - cart items from CartContext
-   * @param {string} params.orderType - 'dine-in' or 'takeout'
-   * @param {number} params.subtotal
-   * @param {string} [params.notes]
-   * @returns {{ data: object|null, error: string|null }}
+   * Place a new order directly to Supabase (internal, always online).
    */
-  const placeOrder = async ({ items, orderType, subtotal, notes }) => {
+  const _placeOrderOnline = async ({ items, orderType, subtotal, notes }) => {
     const userId = session?.user?.id
     if (!userId) return { data: null, error: 'Not authenticated' }
 
@@ -127,6 +127,91 @@ export function useOrders() {
   }
 
   /**
+   * Place order — queues locally if offline, otherwise sends to Supabase.
+   */
+  const placeOrder = async ({ items, orderType, subtotal, notes }) => {
+    if (isOnline) {
+      return _placeOrderOnline({ items, orderType, subtotal, notes })
+    }
+
+    // Offline — queue locally
+    const count = await enqueue({ items, orderType, subtotal, notes })
+    setPendingCount(count)
+    await refreshQueuedOrders()
+    return {
+      data: { order_number: `Q${count}`, offline: true },
+      error: null,
+    }
+  }
+
+  // Load queued orders from AsyncStorage
+  const refreshQueuedOrders = useCallback(async () => {
+    const queue = await getQueue()
+    setPendingCount(queue.length)
+    // Convert queue items to a shape similar to real orders for display
+    setQueuedOrders(queue.map((q, idx) => ({
+      id: q.id,
+      order_number: `Q${idx + 1}`,
+      offline: true,
+      order_type: q.orderType,
+      total_amount: q.subtotal,
+      created_at: q.queuedAt,
+      status: 'queued',
+      order_items: q.items.map(item => ({
+        id: item.cartId,
+        item_name: item.item_name,
+        size_label: item.size_label,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        notes: item.notes,
+        order_item_modifiers: (item.modifiers || []).map(m => ({
+          id: m.id,
+          modifier_name: m.modifier_name,
+          extra_price: m.extra_price,
+        })),
+      })),
+    })))
+  }, [])
+
+  // Refresh pending count and queued orders on mount
+  useEffect(() => {
+    refreshQueuedOrders()
+  }, [])
+
+  // Auto-sync queued orders when coming back online
+  const trySyncQueue = useCallback(async () => {
+    if (syncing.current || !session?.user?.id) return
+    syncing.current = true
+    try {
+      const queue = await getQueue()
+      if (queue.length === 0) {
+        syncing.current = false
+        await refreshQueuedOrders()
+        return
+      }
+      const { synced, failed } = await syncQueue(_placeOrderOnline)
+      await refreshQueuedOrders()
+      if (synced > 0) {
+        Alert.alert(
+          'Orders Synced',
+          `${synced} offline order${synced > 1 ? 's' : ''} synced successfully.${failed > 0 ? ` ${failed} failed and will retry.` : ''}`,
+        )
+        fetchOrders()
+      }
+    } catch (e) {
+      console.warn('Sync failed:', e)
+    }
+    syncing.current = false
+  }, [session, fetchOrders, refreshQueuedOrders])
+
+  // Only trigger sync from onStatusChange (single listener, no duplication)
+  useEffect(() => {
+    return onStatusChange((online) => {
+      if (online) trySyncQueue()
+    })
+  }, [onStatusChange, trySyncQueue])
+
+  /**
    * Complete an order (collect payment).
    */
   const completeOrder = async ({ orderId, paymentMethod, amountTendered, changeAmount, paymentRef }) => {
@@ -172,10 +257,14 @@ export function useOrders() {
   return {
     openOrders,
     completedOrders,
+    queuedOrders,
     loading,
+    isOnline,
+    pendingCount,
     placeOrder,
     completeOrder,
     cancelOrder,
     refresh: fetchOrders,
+    syncNow: trySyncQueue,
   }
 }

@@ -16,7 +16,7 @@ import PaymentSheet from '@/src/components/pos/PaymentSheet'
 import Toast from '@/src/components/common/Toast'
 
 export default function OpenOrdersScreen() {
-  const { openOrders, completedOrders, loading, completeOrder, cancelOrder, refresh } = useOrders()
+  const { openOrders, completedOrders, queuedOrders, loading, completeOrder, cancelOrder, refresh, isOnline, pendingCount, syncNow } = useOrders()
 
   const [payingOrder, setPayingOrder] = useState(null)
   const [showCompleted, setShowCompleted] = useState(false)
@@ -58,6 +58,9 @@ export default function OpenOrdersScreen() {
   }
 
   const sections = [
+    ...(queuedOrders.length > 0
+      ? [{ title: 'Queued (Offline)', data: queuedOrders, type: 'queued' }]
+      : []),
     { title: 'Open Orders', data: openOrders, type: 'open' },
     ...(showCompleted
       ? [{ title: 'Completed Today', data: completedOrders, type: 'completed' }]
@@ -67,9 +70,12 @@ export default function OpenOrdersScreen() {
   const renderSectionHeader = ({ section }) => (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionHeaderLeft}>
+        {section.type === 'queued' && (
+          <Ionicons name="cloud-offline-outline" size={18} color={COLORS.textMuted} />
+        )}
         <Text style={styles.sectionTitle}>{section.title}</Text>
-        <View style={styles.countBadge}>
-          <Text style={styles.countText}>{section.data.length}</Text>
+        <View style={[styles.countBadge, section.type === 'queued' && styles.queuedBadge]}>
+          <Text style={[styles.countText, section.type === 'queued' && styles.queuedBadgeText]}>{section.data.length}</Text>
         </View>
       </View>
     </View>
@@ -79,8 +85,9 @@ export default function OpenOrdersScreen() {
     <OrderCard
       order={item}
       completed={section.type === 'completed'}
-      onCollectPayment={() => setPayingOrder(item)}
-      onCancel={() => handleCancel(item)}
+      queued={section.type === 'queued'}
+      onCollectPayment={section.type === 'queued' ? undefined : () => setPayingOrder(item)}
+      onCancel={section.type === 'queued' ? undefined : () => handleCancel(item)}
     />
   )
 
@@ -99,6 +106,25 @@ export default function OpenOrdersScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Offline / pending banner */}
+      {(!isOnline || pendingCount > 0) && (
+        <TouchableOpacity
+          style={[styles.offlineBanner, isOnline && styles.syncBanner]}
+          onPress={isOnline ? syncNow : undefined}
+          activeOpacity={isOnline ? 0.7 : 1}>
+          <Ionicons
+            name={isOnline ? 'cloud-upload-outline' : 'cloud-offline-outline'}
+            size={16}
+            color={COLORS.bgPrimary}
+          />
+          <Text style={styles.offlineText}>
+            {!isOnline
+              ? `Offline${pendingCount > 0 ? ` — ${pendingCount} queued` : ''}`
+              : `${pendingCount} order${pendingCount > 1 ? 's' : ''} pending — tap to sync`}
+          </Text>
+        </TouchableOpacity>
+      )}
+
       <SectionList
         sections={sections}
         keyExtractor={item => String(item.id)}
@@ -157,6 +183,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bgPrimary,
   },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    backgroundColor: '#D32F2F',
+  },
+  syncBanner: {
+    backgroundColor: COLORS.accentGold,
+  },
+  offlineText: {
+    color: COLORS.bgPrimary,
+    fontFamily: 'DMSans-Bold',
+    fontSize: 12,
+  },
   list: {
     padding: SPACING.md,
     paddingBottom: 100,
@@ -188,6 +230,12 @@ const styles = StyleSheet.create({
     color: COLORS.accentGold,
     fontFamily: 'DMSans-Bold',
     fontSize: 13,
+  },
+  queuedBadge: {
+    backgroundColor: 'rgba(211,47,47,0.15)',
+  },
+  queuedBadgeText: {
+    color: '#D32F2F',
   },
   emptyState: {
     alignItems: 'center',

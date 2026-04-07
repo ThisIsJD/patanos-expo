@@ -25,7 +25,7 @@ export default function OrderScreen() {
   const isTablet = width >= 768
 
   const { items: menuItems, categories, selectedCategory, setSelectedCategory } = useMenu()
-  const { placeOrder } = useOrders()
+  const { placeOrder, isOnline, pendingCount } = useOrders()
   const cart = useCart()
 
   const [pickerItem, setPickerItem] = useState(null)
@@ -91,14 +91,32 @@ export default function OrderScreen() {
       cart.clearCart()
       setToast({
         visible: true,
-        message: `Order #${data.order_number} placed!`,
-        type: 'success',
+        message: data.offline
+          ? `Order queued (#${data.order_number}) — will sync when online`
+          : `Order #${data.order_number} placed!`,
+        type: data.offline ? 'warning' : 'success',
       })
     }
   }
 
   return (
     <View style={styles.container}>
+      {/* Offline banner */}
+      {(!isOnline || pendingCount > 0) && (
+        <View style={[styles.offlineBanner, isOnline && styles.syncBanner]}>
+          <Ionicons
+            name={isOnline ? 'cloud-upload-outline' : 'cloud-offline-outline'}
+            size={16}
+            color={COLORS.bgPrimary}
+          />
+          <Text style={styles.offlineText}>
+            {!isOnline
+              ? 'Offline — orders will be queued'
+              : `${pendingCount} order${pendingCount > 1 ? 's' : ''} syncing...`}
+          </Text>
+        </View>
+      )}
+
       {/* Category tabs */}
       <View style={styles.categoryBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
@@ -234,6 +252,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bgPrimary,
+  },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    backgroundColor: '#D32F2F',
+  },
+  syncBanner: {
+    backgroundColor: COLORS.accentGold,
+  },
+  offlineText: {
+    color: COLORS.bgPrimary,
+    fontFamily: 'DMSans-Bold',
+    fontSize: 12,
   },
   categoryBar: {
     backgroundColor: COLORS.bgSecondary,

@@ -28,11 +28,13 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 export default function CartPanel({ onPlaceOrder, onEditItem, placing = false, borderless = false }) {
   const {
     items,
+    orderType,
     subtotal,
     itemCount,
     updateQuantity,
     updateNote,
     removeItem,
+    setOrderType,
     clearCart,
   } = useCart()
 
@@ -251,20 +253,43 @@ export default function CartPanel({ onPlaceOrder, onEditItem, placing = false, b
         />
       )}
 
-      {/* Footer — total + place order + clear */}
+      {/* Footer — order type + total + place order + clear */}
       {items.length > 0 && (
         <View style={styles.footer}>
+          {/* Order type selector */}
+          <View style={styles.orderTypeRow}>
+            {[
+              { key: 'dine-in', label: 'Dine-in', icon: 'restaurant-outline' },
+              { key: 'takeout', label: 'Takeout', icon: 'bag-handle-outline' },
+              { key: 'delivery', label: 'Delivery', icon: 'bicycle-outline' },
+            ].map(t => (
+              <TouchableOpacity
+                key={t.key}
+                style={[styles.orderTypeBtn, orderType === t.key && styles.orderTypeBtnActive]}
+                onPress={() => setOrderType(t.key)}>
+                <Ionicons
+                  name={t.icon}
+                  size={15}
+                  color={orderType === t.key ? COLORS.textOnGold : COLORS.textSecondary}
+                />
+                <Text style={[styles.orderTypeText, orderType === t.key && styles.orderTypeTextActive]}>
+                  {t.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total</Text>
             <Text style={styles.totalPrice}>{formatPrice(subtotal)}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.placeBtn, placing && styles.placeBtnDisabled]}
+            style={[styles.placeBtn, (placing || !orderType) && styles.placeBtnDisabled]}
             onPress={onPlaceOrder}
-            disabled={placing}>
+            disabled={placing || !orderType}>
             <Ionicons name="checkmark-circle" size={20} color={COLORS.textOnGold} />
             <Text style={styles.placeBtnText}>
-              {placing ? 'Placing...' : 'Place Order'}
+              {placing ? 'Placing...' : !orderType ? 'Select Order Type' : 'Place Order'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -442,6 +467,35 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     gap: SPACING.sm,
+  },
+  orderTypeRow: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
+  },
+  orderTypeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.bgElevated,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  orderTypeBtnActive: {
+    backgroundColor: COLORS.accentGold,
+    borderColor: COLORS.accentGold,
+  },
+  orderTypeText: {
+    color: COLORS.textSecondary,
+    fontFamily: 'DMSans',
+    fontSize: 12,
+  },
+  orderTypeTextActive: {
+    color: COLORS.textOnGold,
+    fontFamily: 'DMSans-Bold',
   },
   totalRow: {
     flexDirection: 'row',

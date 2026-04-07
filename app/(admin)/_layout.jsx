@@ -62,11 +62,24 @@ export default function AdminLayout() {
         }}
       />
       <Tabs.Screen
+        name="inventory"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="gallery"
         options={{
           title: 'Gallery',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="images" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="reports"
+        options={{
+          title: 'Reports',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart" size={size} color={color} />
           ),
         }}
       />
