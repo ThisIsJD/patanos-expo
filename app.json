@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "patanos-POS",
-    "slug": "patanos-pos",
+    "slug": "patanos-expo",
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/brand/patanos-logo.png",
