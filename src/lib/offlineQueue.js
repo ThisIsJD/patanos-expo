@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const QUEUE_KEY = 'patanos_offline_orders'
+const DEAD_LETTER_KEY = 'patanos_dead_orders'
+const MAX_RETRIES = 5
 let syncLock = false
 
 /**
@@ -54,7 +56,15 @@ export async function syncQueue(placeOrderFn) {
     for (const order of queue) {
       const { data, error } = await placeOrderFn(order)
       if (error) {
-        remaining.push(order)
+        const retries = (order._retryCount || 0) + 1
+        if (retries >= MAX_RETRIES) {
+          // Move to dead letter queue — stop retrying permanently bad orders
+          const deadQueue = JSON.parse(await AsyncStorage.getItem(DEAD_LETTER_KEY) || '[]')
+          deadQueue.push({ ...order, _retryCount: retries, _failedAt: new Date().toISOString(), _lastError: error })
+          await AsyncStorage.setItem(DEAD_LETTER_KEY, JSON.stringify(deadQueue))
+        } else {
+          remaining.push({ ...order, _retryCount: retries })
+        }
         failed++
       } else {
         synced++
@@ -68,4 +78,16 @@ export async function syncQueue(placeOrderFn) {
     syncLock = false
     throw e
   }
+}
+
+/**
+ * Retrieve orders that failed too many times and were removed from the sync queue.
+ */
+export async function getDeadLetters() {
+  const raw = await AsyncStorage.getItem(DEAD_LETTER_KEY)
+  return raw ? JSON.parse(raw) : []
+}
+
+export async function clearDeadLetters() {
+  await AsyncStorage.removeItem(DEAD_LETTER_KEY)
 }

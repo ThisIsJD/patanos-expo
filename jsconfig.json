@@ -6,5 +6,6 @@
       "@/*": ["./*"]
     }
   },
-  "exclude": ["node_modules"]
+  "include": ["app/**/*", "src/**/*"],
+  "exclude": ["node_modules", "dist", ".expo"]
 }

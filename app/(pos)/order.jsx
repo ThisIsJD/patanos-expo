@@ -24,7 +24,7 @@ export default function OrderScreen() {
   const { width } = useWindowDimensions()
   const isTablet = width >= 768
 
-  const { items: menuItems, categories, selectedCategory, setSelectedCategory } = useMenu()
+  const { items: menuItems, categories, modifierGroups, selectedCategory, setSelectedCategory } = useMenu()
   const { placeOrder, isOnline, pendingCount } = useOrders()
   const cart = useCart()
 
@@ -236,6 +236,7 @@ export default function OrderScreen() {
         onAdd={handleAddFromPicker}
         onClose={() => { setPickerItem(null); setEditingCartId(null) }}
         allItems={menuItems}
+        allModifierGroups={modifierGroups}
       />
 
       <Toast

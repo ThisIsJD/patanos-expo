@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native'
+import { useFocusEffect } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 import { useOrders } from '@/src/hooks/useOrders'
@@ -17,6 +18,9 @@ import Toast from '@/src/components/common/Toast'
 
 export default function OpenOrdersScreen() {
   const { openOrders, completedOrders, queuedOrders, loading, completeOrder, cancelOrder, refresh, isOnline, pendingCount, syncNow } = useOrders()
+
+  // Refresh both online orders and offline queue every time screen gains focus
+  useFocusEffect(useCallback(() => { refresh() }, [refresh]))
 
   const [payingOrder, setPayingOrder] = useState(null)
   const [showCompleted, setShowCompleted] = useState(false)

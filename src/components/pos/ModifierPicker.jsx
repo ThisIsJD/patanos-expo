@@ -11,7 +11,6 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 import { formatPrice } from '@/src/utils/formatPrice'
-import { supabase } from '@/src/lib/supabase'
 
 /**
  * Bottom sheet that appears when tapping a menu item in the POS grid.
@@ -24,7 +23,7 @@ import { supabase } from '@/src/lib/supabase'
  * @param {() => void} props.onClose
  * @param {Array} props.allItems - all menu_items (to find size variants)
  */
-export default function ModifierPicker({ item, visible, onAdd, onClose, allItems }) {
+export default function ModifierPicker({ item, visible, onAdd, onClose, allItems, allModifierGroups = [] }) {
   const [modifierGroups, setModifierGroups] = useState([])
   const [selectedModifiers, setSelectedModifiers] = useState([])
   const [selectedVariant, setSelectedVariant] = useState(null)
@@ -47,26 +46,14 @@ export default function ModifierPicker({ item, visible, onAdd, onClose, allItems
     const firstAvailable = variants.find(v => v.available !== false) || variants[0]
     setSelectedVariant(firstAvailable)
 
-    const fetchModifiers = async () => {
-      // Match: global groups (no category or item filter), category-level, or item-level
-      const { data } = await supabase
-        .from('modifier_groups')
-        .select('*, modifiers(*)')
-        .or(
-          `category_id.eq.${item.category_id},menu_item_id.eq.${item.id},and(category_id.is.null,menu_item_id.is.null)`,
-        )
-        .order('sort_order', { ascending: true })
-
-      if (data) {
-        const sorted = data.map(g => ({
-          ...g,
-          modifiers: (g.modifiers || []).sort((a, b) => a.sort_order - b.sort_order),
-        }))
-        setModifierGroups(sorted)
-      }
-    }
-    fetchModifiers()
-  }, [item, visible])
+    // Filter from cached modifier groups instead of fetching from Supabase
+    const filtered = allModifierGroups.filter(g =>
+      g.category_id === item.category_id ||
+      g.menu_item_id === item.id ||
+      (!g.category_id && !g.menu_item_id)
+    )
+    setModifierGroups(filtered)
+  }, [item, visible, allModifierGroups])
 
   const toggleModifier = (group, modifier) => {
     setSelectedModifiers(prev => {

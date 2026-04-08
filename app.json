@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "patanos-expo",
-    "slug": "patanos-expo",
-    "version": "1.0.0",
+    "name": "patanos-POS",
+    "slug": "patanos-pos",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/brand/patanos-logo.png",
     "scheme": "patanosexpo",
@@ -12,7 +12,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.patanos.app",
+      "package": "com.patanos.pos",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A",
         "foregroundImage": "./assets/brand/patanos-logo.png"

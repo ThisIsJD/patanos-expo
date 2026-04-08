@@ -7,15 +7,17 @@ import { uploadImage } from '@/src/utils/imageUpload'
 
 const MENU_CACHE_KEY = 'patanos_menu_cache'
 const CATEGORIES_CACHE_KEY = 'patanos_categories_cache'
+const MODIFIERS_CACHE_KEY = 'patanos_modifiers_cache'
 
 export function useMenu() {
   const [items, setItems] = useState([])
   const [categories, setCategories] = useState([])
+  const [modifierGroups, setModifierGroups] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
-    const [menuRes, catRes] = await Promise.all([
+    const [menuRes, catRes, modRes] = await Promise.all([
       supabase
         .from('menu_items')
         .select('*')
@@ -24,6 +26,10 @@ export function useMenu() {
         .from('categories')
         .select('*')
         .eq('status', 'published')
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('modifier_groups')
+        .select('*, modifiers(*)')
         .order('sort_order', { ascending: true }),
     ])
 
@@ -35,6 +41,14 @@ export function useMenu() {
       setCategories(catRes.data)
       AsyncStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(catRes.data)).catch(() => {})
     }
+    if (modRes.data) {
+      const sorted = modRes.data.map(g => ({
+        ...g,
+        modifiers: (g.modifiers || []).sort((a, b) => a.sort_order - b.sort_order),
+      }))
+      setModifierGroups(sorted)
+      AsyncStorage.setItem(MODIFIERS_CACHE_KEY, JSON.stringify(sorted)).catch(() => {})
+    }
     setLoading(false)
   }, [])
 
@@ -42,12 +56,14 @@ export function useMenu() {
   useEffect(() => {
     const loadCache = async () => {
       try {
-        const [cachedMenu, cachedCats] = await Promise.all([
+        const [cachedMenu, cachedCats, cachedMods] = await Promise.all([
           AsyncStorage.getItem(MENU_CACHE_KEY),
           AsyncStorage.getItem(CATEGORIES_CACHE_KEY),
+          AsyncStorage.getItem(MODIFIERS_CACHE_KEY),
         ])
         if (cachedMenu) setItems(JSON.parse(cachedMenu))
         if (cachedCats) setCategories(JSON.parse(cachedCats))
+        if (cachedMods) setModifierGroups(JSON.parse(cachedMods))
         if (cachedMenu || cachedCats) setLoading(false)
       } catch {}
     }
@@ -158,6 +174,7 @@ export function useMenu() {
   return {
     items,
     categories,
+    modifierGroups,
     loading,
     selectedCategory,
     setSelectedCategory,
