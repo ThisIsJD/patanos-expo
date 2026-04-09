@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 import { formatPrice } from '@/src/utils/formatPrice'
 
@@ -24,6 +25,7 @@ import { formatPrice } from '@/src/utils/formatPrice'
  * @param {Array} props.allItems - all menu_items (to find size variants)
  */
 export default function ModifierPicker({ item, visible, onAdd, onClose, allItems, allModifierGroups = [] }) {
+  const insets = useSafeAreaInsets()
   const [modifierGroups, setModifierGroups] = useState([])
   const [selectedModifiers, setSelectedModifiers] = useState([])
   const [selectedVariant, setSelectedVariant] = useState(null)
@@ -180,7 +182,7 @@ export default function ModifierPicker({ item, visible, onAdd, onClose, allItems
           </ScrollView>
 
           {/* Footer — quantity + add */}
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: 14 }]}>
             <View style={styles.qtyRow}>
               <TouchableOpacity
                 style={styles.qtyBtn}

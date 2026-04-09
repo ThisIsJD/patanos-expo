@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 import { useMenu } from '@/src/hooks/useMenu'
 import { useOrders } from '@/src/hooks/useOrders'
@@ -23,6 +24,7 @@ import Toast from '@/src/components/common/Toast'
 export default function OrderScreen() {
   const { width } = useWindowDimensions()
   const isTablet = width >= 768
+  const insets = useSafeAreaInsets()
 
   const { items: menuItems, categories, modifierGroups, selectedCategory, setSelectedCategory } = useMenu()
   const { placeOrder, isOnline, pendingCount } = useOrders()
@@ -159,7 +161,7 @@ export default function OrderScreen() {
           // Phone: compact bottom bar that expands into full cart sheet
           cart.itemCount > 0 && (
             <TouchableOpacity
-              style={styles.phoneCartBar}
+              style={[styles.phoneCartBar, { paddingBottom: 14 }]}
               activeOpacity={0.85}
               onPress={() => setPhoneCartOpen(true)}>
               <View style={styles.phoneCartLeft}>
@@ -367,7 +369,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: RADIUS.xl,
     borderTopRightRadius: RADIUS.xl,
     maxHeight: '60%',
-    minHeight: 320,
+    minHeight: 348,
     overflow: 'hidden',
   },
   sheetHeader: {

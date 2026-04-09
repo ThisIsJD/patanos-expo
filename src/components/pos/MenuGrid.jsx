@@ -73,7 +73,7 @@ export default function MenuGrid({ items, categories, selectedCategory, onItemPr
           {group.variants.length > 1 && (
             <Text style={[styles.size, isUnavailable && styles.textUnavailable]}>{group.variants.length} sizes</Text>
           )}
-          <Text style={[styles.price, isUnavailable && styles.textUnavailable]}>{priceLabel}</Text>
+          <Text style={[styles.price, isUnavailable && styles.textUnavailable]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{priceLabel}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -104,7 +104,7 @@ export default function MenuGrid({ items, categories, selectedCategory, onItemPr
 const styles = StyleSheet.create({
   grid: {
     padding: SPACING.sm,
-    paddingBottom: 100,
+    paddingBottom: 140,
   },
   row: {
     gap: SPACING.sm,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   price: {
     color: COLORS.accentGold,
     fontFamily: 'DMSans-Bold',
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 4,
   },
   cardUnavailable: {
