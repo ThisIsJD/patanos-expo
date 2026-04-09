@@ -32,11 +32,8 @@ export function validateOrder({ items, orderType, subtotal }) {
   }
 
   // Verify subtotal matches item totals (allow ₱1 rounding tolerance)
-  const computed = items.reduce((sum, i) => {
-    const itemBase = i.unit_price * i.quantity
-    const modExtra = (i.modifiers || []).reduce((s, m) => s + (parseFloat(m.extra_price) || 0), 0) * i.quantity
-    return sum + itemBase + modExtra
-  }, 0)
+  // unit_price already includes modifier extra_prices (baked in by CartContext)
+  const computed = items.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
 
   if (Math.abs(computed - subtotal) > 1) {
     return { valid: false, error: `Subtotal mismatch: expected ₱${computed.toFixed(2)}, got ₱${subtotal.toFixed(2)}` }

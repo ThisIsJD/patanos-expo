@@ -180,7 +180,7 @@ export default function OrderScreen() {
       </View>
 
       {/* Phone cart bottom sheet */}
-      {!isTablet && (
+      {!isTablet && ( 
         <Modal
           visible={phoneCartOpen}
           transparent

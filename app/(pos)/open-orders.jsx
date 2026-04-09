@@ -31,6 +31,7 @@ export default function OpenOrdersScreen() {
     const { error } = await completeOrder(payment)
     if (!error) {
       setPayingOrder(null)
+      refresh()
       setToast({ visible: true, message: `Order #${payingOrder.order_number} completed!`, type: 'success' })
     }
   }

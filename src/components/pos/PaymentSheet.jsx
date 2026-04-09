@@ -123,7 +123,7 @@ export default function PaymentSheet({ visible, order, onConfirm, onClose }) {
               {/* Exact amount button */}
               <TouchableOpacity
                 style={styles.exactBtn}
-                onPress={() => setAmountText(String(total))}>
+                onPress={() => setAmountText(total.toFixed(2))}>
                 <Text style={styles.exactBtnText}>Exact Amount ({formatPrice(total)})</Text>
               </TouchableOpacity>
 
