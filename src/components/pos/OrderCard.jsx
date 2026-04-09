@@ -92,6 +92,9 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
                     + {item.order_item_modifiers.map(m => m.modifier_name).join(', ')}
                   </Text>
                 )}
+                {item.notes ? (
+                  <Text style={styles.itemNote}>"{item.notes}"</Text>
+                ) : null}
               </View>
               <Text style={styles.detailPrice}>{formatPrice(item.subtotal || item.unit_price * item.quantity)}</Text>
             </View>
@@ -254,6 +257,13 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontFamily: 'DMSans',
     fontSize: 11,
+    marginTop: 2,
+  },
+  itemNote: {
+    color: COLORS.accentGold,
+    fontFamily: 'DMSans',
+    fontSize: 11,
+    fontStyle: 'italic',
     marginTop: 2,
   },
   detailPrice: {
