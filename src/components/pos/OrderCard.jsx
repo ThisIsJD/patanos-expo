@@ -93,7 +93,7 @@ export default function OrderCard({ order, onCollectPayment, onCancel, completed
                   </Text>
                 )}
                 {item.notes ? (
-                  <Text style={styles.itemNote}>"{item.notes}"</Text>
+                  <Text style={styles.itemNote}>{`"${item.notes}"`}</Text>
                 ) : null}
               </View>
               <Text style={styles.detailPrice}>{formatPrice(item.subtotal || item.unit_price * item.quantity)}</Text>

@@ -38,7 +38,7 @@ export async function clearQueue() {
  * Uses a lock to prevent concurrent syncs across multiple hook instances.
  * Returns { synced: number, failed: number }.
  */
-export async function syncQueue(placeOrderFn) {
+export async function syncQueue(placeOrderFn, { canContinue = () => true, canSubmit = () => true } = {}) {
   if (syncLock) return { synced: 0, failed: 0 }
   syncLock = true
 
@@ -53,7 +53,10 @@ export async function syncQueue(placeOrderFn) {
     let failed = 0
     const remaining = []
 
-    for (const order of queue) {
+    for (const [index, order] of queue.entries()) {
+      // A lock/account change is not a failed sale: retain untouched records and retry counts.
+      if (!canContinue()) { remaining.push(...queue.slice(index)); break }
+      if (!canSubmit(order)) { remaining.push(order); continue }
       const { data, error } = await placeOrderFn(order)
       if (error) {
         const retries = (order._retryCount || 0) + 1

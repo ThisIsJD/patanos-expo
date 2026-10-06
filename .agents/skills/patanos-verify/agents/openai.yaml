@@ -1,0 +1,4 @@
+interface:
+  display_name: "Patanos Verify"
+  short_description: "Verify Patanos changes with fresh evidence"
+  default_prompt: "Use $patanos-verify to validate this Patanos change and report remaining risk."

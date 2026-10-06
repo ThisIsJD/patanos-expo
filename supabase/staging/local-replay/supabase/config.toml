@@ -1,0 +1,11 @@
+# Empty-migration rehearsal ONLY for the existing disposable patanos-local stack.
+# Never use --linked or --db-url here. Normal root reset restores reviewed fixtures.
+project_id = "patanos-local"
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = false

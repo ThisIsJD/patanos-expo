@@ -17,7 +17,7 @@ import PaymentSheet from '@/src/components/pos/PaymentSheet'
 import Toast from '@/src/components/common/Toast'
 
 export default function OpenOrdersScreen() {
-  const { openOrders, completedOrders, queuedOrders, loading, completeOrder, cancelOrder, refresh, isOnline, pendingCount, syncNow } = useOrders()
+  const { openOrders, completedOrders, queuedOrders, loading, completeOrder, cancelOrder, refresh, isOnline, pendingCount, heldCount = 0, syncNow } = useOrders()
 
   // Refresh both online orders and offline queue every time screen gains focus
   useFocusEffect(useCallback(() => { refresh() }, [refresh]))
@@ -28,30 +28,35 @@ export default function OpenOrdersScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'info' })
 
   const handleCollectPayment = async (payment) => {
-    const { error } = await completeOrder(payment)
-    if (!error) {
+    const result = await completeOrder(payment)
+    if (!result.error) {
       setPayingOrder(null)
       refresh()
       setToast({ visible: true, message: `Order #${payingOrder.order_number} completed!`, type: 'success' })
     }
+    return result
   }
 
   const handleCancel = (order) => {
+    const confirmCancellation = async (releaseStock) => {
+      const reason = releaseStock ? 'Not prepared: portions released by staff' : 'Prepared or unknown: portions kept consumed'
+      const { error } = await cancelOrder(order.id, reason, releaseStock)
+      if (!error) {
+        refresh()
+        setToast({ visible: true, message: `Order #${order.order_number} cancelled`, type: 'info' })
+      }
+    }
     Alert.alert(
       'Cancel Order',
-      `Cancel order #${order.order_number}? This cannot be undone.`,
+      `Cancel order #${order.order_number}? This cannot be undone. Only return portions if nothing was prepared. Prepared or uncertain portions stay consumed.`,
       [
         { text: 'Keep', style: 'cancel' },
         {
-          text: 'Cancel Order',
+          text: 'Prepared / unsure: keep consumed',
           style: 'destructive',
-          onPress: async () => {
-            const { error } = await cancelOrder(order.id, 'Cancelled by staff')
-            if (!error) {
-              setToast({ visible: true, message: `Order #${order.order_number} cancelled`, type: 'info' })
-            }
-          },
+          onPress: () => confirmCancellation(false),
         },
+        { text: 'Not prepared: return portions', style: 'destructive', onPress: () => confirmCancellation(true) },
       ],
     )
   }
@@ -112,6 +117,9 @@ export default function OpenOrdersScreen() {
   return (
     <View style={styles.container}>
       {/* Offline / pending banner */}
+      {heldCount > 0 && <Text accessibilityRole="alert" style={{ color: COLORS.warning, padding: SPACING.md }}>
+        {heldCount} queued record(s) held: another staff account or missing original identity. These are not submitted as you. Legacy records need owner recovery in the later offline phase.
+      </Text>}
       {(!isOnline || pendingCount > 0) && (
         <TouchableOpacity
           style={[styles.offlineBanner, isOnline && styles.syncBanner]}

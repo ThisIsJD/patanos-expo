@@ -1,6 +1,8 @@
 import React from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/src/contexts/AuthContext'
+import StaffAdministration from '@/src/components/auth/StaffAdministration'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 
 export default function SettingsScreen() {
@@ -14,7 +16,10 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+    <KeyboardAvoidingView style={styles.safeArea} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+    <View style={styles.content}>
       {/* Profile info */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
@@ -34,16 +39,24 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut} activeOpacity={0.8}>
+      {profile?.role === 'admin' && <StaffAdministration />}
+
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sign out" style={styles.signOutButton} onPress={handleSignOut} activeOpacity={0.8}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: COLORS.bgPrimary },
+  content: { width: '100%', maxWidth: 760 },
   container: {
-    flex: 1,
+    flexGrow: 1,
+    alignItems: 'center',
     backgroundColor: COLORS.bgPrimary,
     padding: SPACING.md,
   },

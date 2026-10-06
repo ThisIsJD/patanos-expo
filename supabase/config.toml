@@ -1,0 +1,44 @@
+project_id = "patanos-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+
+[local_smtp]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["patanosexpo-development://auth/callback", "patanosexpo-staging://auth/callback", "patanosexpo-development://reset-password", "patanosexpo-staging://reset-password"]
+jwt_expiry = 3600
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[auth.email]
+# CLI maps this provider switch to GOTRUE_EXTERNAL_EMAIL_ENABLED. Global
+# auth.enable_signup=false still blocks registration while existing staff can log in.
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true

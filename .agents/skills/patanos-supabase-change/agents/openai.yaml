@@ -1,0 +1,4 @@
+interface:
+  display_name: "Patanos Supabase Change"
+  short_description: "Change Patanos Supabase boundaries safely"
+  default_prompt: "Use $patanos-supabase-change to review and implement this Supabase-backed change safely."

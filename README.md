@@ -1,6 +1,11 @@
 # Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Patanos is an Expo/React Native cafe POS in development, not yet deployment-ready.
+See [development foundations](CONTRIBUTING.md) for tests, local database fixtures,
+Android environment variants and monitoring setup, and the
+[implementation tracker](ProjectContext/implementationPlan.md) for verified progress.
+
+The original Expo starter notes are retained below.
 
 ## Get started
 

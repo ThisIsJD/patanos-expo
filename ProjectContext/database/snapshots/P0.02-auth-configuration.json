@@ -1,0 +1,61 @@
+{
+  "recordedOn": "2026-10-04",
+  "source": "Owner-confirmed project-wide settings, staff creation statement, and non-identifying facts from one Auth account record",
+  "environmentUsage": "development/testing only; no real cafe sales",
+  "environmentConfirmationSource": "Owner statement on 2026-10-04",
+  "staffProvisioning": {
+    "reportedMethods": [
+      "Supabase Dashboard Manage users / Add user",
+      "SQL (owner-reported option; procedure not reviewed)"
+    ],
+    "roleResponsibilities": {
+      "admin": ["content management", "POS"],
+      "cashier": ["POS"]
+    },
+    "roleAssignmentProcedure": "None yet (owner-reported)",
+    "initialOwnerProvisioningProcedure": "None yet (owner-reported)",
+    "disableAndRecoveryProcedure": "None yet (owner-reported)",
+    "procedureGapsRecorded": true,
+    "reportedTestAccountCount": 4,
+    "reportedDisabledAccountCount": 0,
+    "accountCountsDoNotEstablishAdministrationProcedure": true,
+    "sqlProvisioningProcedureReviewed": false
+  },
+  "observedSingleAccount": {
+    "emailProvider": true,
+    "emailConfirmed": true,
+    "anonymous": false,
+    "sso": false,
+    "doesNotEstablishProjectWideConfiguration": true
+  },
+  "projectWideSettings": {
+    "allowNewUsersToSignUp": true,
+    "allowAnonymousSignIns": false,
+    "enabledProviders": ["email"],
+    "confirmEmail": true,
+    "siteUrl": "http://localhost:3000",
+    "redirectUrls": [],
+    "jwtExpirySeconds": 3600,
+    "jwtSigningAlgorithm": "ECC (P-256), owner-reported",
+    "maximumSessionLifetime": "never",
+    "inactivityTimeout": "never",
+    "singleSessionPerUser": false,
+    "authHooks": [],
+    "rateLimits": {
+      "emailSending": { "limit": 2, "windowMinutes": 60 },
+      "smsSending": { "limit": 30, "windowMinutes": 60 },
+      "tokenRefreshes": { "limit": 150, "windowMinutes": 5 },
+      "tokenVerifications": { "limit": 30, "windowMinutes": 5 },
+      "anonymousUsers": { "limit": 30, "windowMinutes": 60 },
+      "signUpsAndSignIns": { "limit": 30, "windowMinutes": 5 },
+      "web3SignUpsAndSignIns": { "limit": 30, "windowMinutes": 5 }
+    },
+    "captchaEnabled": false
+  },
+  "configurationVerified": false,
+  "baselineReviewComplete": true,
+  "verificationBasis": "Owner-confirmed non-secret settings and recorded procedure gaps, reconciled with the supplied SQL metadata; no independent dashboard inspection or live Auth/API tests",
+  "confirmationScope": "All requested P0-02 baseline settings are owner-confirmed. Admin is intended for content management and POS; cashier for POS only. Staff role assignment, initial owner provisioning, disabling, and recovery have no established procedure yet. Session limits are Never, while access tokens expire after 3600 seconds.",
+  "signingKeyIdentifierStored": false,
+  "accountEmailIdAndPersonalTimestampsStored": false
+}

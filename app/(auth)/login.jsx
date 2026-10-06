@@ -11,10 +11,14 @@ import {
   Image,
 } from 'react-native'
 import { useAuth } from '@/src/contexts/AuthContext'
+import { useRecovery } from '@/src/contexts/RecoveryContext'
+import { useRouter } from 'expo-router'
 import { COLORS } from '@/src/constants/theme'
 
 export default function LoginScreen() {
   const { signIn } = useAuth()
+  const { notice } = useRecovery()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -69,7 +73,8 @@ export default function LoginScreen() {
             secureTextEntry
           />
 
-          {error && <Text style={styles.error}>{error}</Text>}
+          {notice && <Text accessibilityRole="alert" style={styles.notice}>{notice}</Text>}
+          {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
@@ -81,6 +86,11 @@ export default function LoginScreen() {
             ) : (
               <Text style={styles.buttonText}>Sign In</Text>
             )}
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Forgot password"
+            disabled={loading} onPress={() => router.push('/(auth)/forgot-password')}
+            style={styles.recoveryButton}>
+            <Text style={styles.notice}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -139,4 +149,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'DMSans',
   },
+  notice: { color: COLORS.textSecondary, fontSize: 16, fontFamily: 'DMSans', textAlign: 'center' },
+  recoveryButton: { minHeight: 48, justifyContent: 'center', alignItems: 'center' },
 })

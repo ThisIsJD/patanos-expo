@@ -18,7 +18,8 @@ function HeaderLeftButton() {
             { text: 'Logout', style: 'destructive', onPress: signOut },
           ])
         }
-        style={{ marginLeft: 12 }}>
+        accessibilityRole="button" accessibilityLabel="Sign out"
+        style={{ marginLeft: 12, minWidth: 48, minHeight: 48, justifyContent: 'center', alignItems: 'center' }}>
         <Ionicons name="log-out-outline" size={24} color={COLORS.accentGold} />
       </TouchableOpacity>
     )
@@ -26,14 +27,16 @@ function HeaderLeftButton() {
 
   return (
     <TouchableOpacity
-      onPress={() => router.replace('/(admin)/menu')}
-      style={{ marginLeft: 12 }}>
-      <Ionicons name="arrow-back" size={24} color={COLORS.accentGold} />
+      onPress={() => router.push('/(admin)/settings')}
+      accessibilityRole="button" accessibilityLabel="Owner tools"
+      style={{ marginLeft: 12, minWidth: 48, minHeight: 48, justifyContent: 'center', alignItems: 'center' }}>
+      <Ionicons name="settings-outline" size={24} color={COLORS.accentGold} />
     </TouchableOpacity>
   )
 }
 
 export default function POSLayout() {
+  const { lockSession } = useAuth()
   return (
     <CartProvider>
       <Tabs
@@ -42,6 +45,11 @@ export default function POSLayout() {
           headerTintColor: COLORS.textPrimary,
           headerTitleStyle: { fontFamily: 'DMSans-Bold' },
           headerLeft: () => <HeaderLeftButton />,
+          headerRight: () => <TouchableOpacity onPress={() => lockSession('manual')}
+            accessibilityRole="button" accessibilityLabel="Lock register"
+            style={{ marginRight: 12, minWidth: 48, minHeight: 48, justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="lock-closed-outline" size={24} color={COLORS.accentGold} />
+          </TouchableOpacity>,
           tabBarStyle: {
             backgroundColor: COLORS.bgSecondary,
             borderTopColor: COLORS.border,

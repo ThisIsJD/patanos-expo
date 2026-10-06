@@ -13,6 +13,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
 import { formatPrice } from '@/src/utils/formatPrice'
 
+const EMPTY_MODIFIER_GROUPS = []
+
 /**
  * Bottom sheet that appears when tapping a menu item in the POS grid.
  * Shows size variants (if any) and applicable modifier groups.
@@ -24,7 +26,7 @@ import { formatPrice } from '@/src/utils/formatPrice'
  * @param {() => void} props.onClose
  * @param {Array} props.allItems - all menu_items (to find size variants)
  */
-export default function ModifierPicker({ item, visible, onAdd, onClose, allItems, allModifierGroups = [] }) {
+export default function ModifierPicker({ item, visible, onAdd, onClose, allItems, allModifierGroups = EMPTY_MODIFIER_GROUPS }) {
   const insets = useSafeAreaInsets()
   const [modifierGroups, setModifierGroups] = useState([])
   const [selectedModifiers, setSelectedModifiers] = useState([])

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Patanos Order Integrity"
+  short_description: "Protect Patanos order and inventory integrity"
+  default_prompt: "Use $patanos-order-integrity to change this POS transaction flow without mispricing or duplicating orders."

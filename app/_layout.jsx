@@ -1,4 +1,3 @@
-import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { useFonts } from 'expo-font'
@@ -13,52 +12,15 @@ import {
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans'
 
-import { AuthProvider, useAuth } from '@/src/contexts/AuthContext'
-import { COLORS } from '@/src/constants/theme'
+import { AuthProvider } from '@/src/contexts/AuthContext'
+import SessionNavigator from '@/src/components/auth/SessionNavigator'
+import { RecoveryProvider } from '@/src/contexts/RecoveryContext'
+import { initializeMonitoring, wrapWithMonitoring } from '@/src/lib/monitoring'
 
+initializeMonitoring()
 SplashScreen.preventAutoHideAsync()
 
-function RootNavigator() {
-  const { session, role, loading } = useAuth()
-  const segments = useSegments()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (loading) return
-
-    const inAuth = segments[0] === '(auth)'
-    const inAdmin = segments[0] === '(admin)'
-    const inPOS = segments[0] === '(pos)'
-
-    if (!session && !inAuth) {
-      router.replace('/(auth)/login')
-    } else if (session && inAuth) {
-      // Route based on role after login
-      if (role === 'cashier') {
-        router.replace('/(pos)/order')
-      } else {
-        router.replace('/(admin)/menu')
-      }
-    } else if (session && role === 'cashier' && inAdmin) {
-      // Cashiers cannot access admin screens
-      router.replace('/(pos)/order')
-    }
-  }, [session, role, loading, segments])
-
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: COLORS.bgPrimary },
-      }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(admin)" />
-      <Stack.Screen name="(pos)" />
-    </Stack>
-  )
-}
-
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useFonts({
     PermanentMarker: PermanentMarker_400Regular,
     DMSans: DMSans_400Regular,
@@ -75,9 +37,11 @@ export default function RootLayout() {
   if (!fontsLoaded) return null
 
   return (
-    <AuthProvider>
-      <RootNavigator />
+    <RecoveryProvider><AuthProvider>
+      <SessionNavigator />
       <StatusBar style="light" />
-    </AuthProvider>
+    </AuthProvider></RecoveryProvider>
   )
 }
+
+export default wrapWithMonitoring(RootLayout)

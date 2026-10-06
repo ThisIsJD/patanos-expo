@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS, SPACING, RADIUS } from '@/src/constants/theme'
+import { COLORS, FONTS, SPACING, RADIUS } from '@/src/constants/theme'
 import { formatPrice } from '@/src/utils/formatPrice'
 import { useSalesReports } from '@/src/hooks/useSalesReports'
 
@@ -53,7 +53,7 @@ function BarChart({ data, maxValue }) {
 }
 
 export default function ReportsScreen() {
-  const { dailySales, categoryTotals, totals, avgOrderValue, loading, fetchSales } = useSalesReports()
+  const { dailySales, categoryTotals, totals, avgOrderValue, loading, error, fetchSales } = useSalesReports()
 
   // Date range state
   const [range, setRange] = useState('today') // 'today' | 'week' | 'month'
@@ -130,6 +130,15 @@ export default function ReportsScreen() {
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.accentGold} style={{ paddingTop: 60 }} />
+      ) : error ? (
+        <View style={styles.emptyState}>
+          <Text accessibilityRole="alert" style={styles.emptyTitle}>Reports unavailable</Text>
+          <Text style={styles.emptySub}>{error}</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Retry sales reports"
+            style={styles.retryButton} onPress={() => fetchSales(dateRange.start, dateRange.end)}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <>
           {/* Summary cards */}
@@ -263,6 +272,21 @@ export default function ReportsScreen() {
 }
 
 const styles = StyleSheet.create({
+  retryButton: {
+    minHeight: 48,
+    minWidth: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.accentGold,
+  },
+  retryText: {
+    color: COLORS.textOnGold,
+    fontFamily: FONTS.bodyBold,
+    fontSize: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.bgPrimary,

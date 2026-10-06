@@ -21,7 +21,7 @@ const QUICK_CASH = [20, 50, 100, 200, 500, 1000]
  * @param {object} props
  * @param {boolean} props.visible
  * @param {object} props.order
- * @param {(payment: object) => void} props.onConfirm
+ * @param {(payment: object) => Promise<{ error: string | null }>} props.onConfirm
  * @param {() => void} props.onClose
  */
 export default function PaymentSheet({ visible, order, onConfirm, onClose }) {
@@ -39,20 +39,25 @@ export default function PaymentSheet({ visible, order, onConfirm, onClose }) {
     : true // GCash: ref is optional
 
   const handleConfirm = async () => {
-    if (!canConfirm) return
+    if (!canConfirm || submitting) return
     setSubmitting(true)
-    await onConfirm({
-      orderId: order.id,
-      paymentMethod: method,
-      amountTendered: method === 'cash' ? tendered : null,
-      changeAmount: method === 'cash' ? change : null,
-      paymentRef: method === 'gcash' ? paymentRef.trim() || null : null,
-    })
-    // Reset state
-    setAmountText('')
-    setPaymentRef('')
-    setMethod('cash')
-    setSubmitting(false)
+    try {
+      const result = await onConfirm({
+        orderId: order.id,
+        paymentMethod: method,
+        amountTendered: method === 'cash' ? tendered : null,
+        changeAmount: method === 'cash' ? change : null,
+        paymentRef: method === 'gcash' ? paymentRef.trim() || null : null,
+      })
+      // A rejected or unconfirmed settlement must retain the cashier's input.
+      if (result?.error === null) {
+        setAmountText('')
+        setPaymentRef('')
+        setMethod('cash')
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!order) return null

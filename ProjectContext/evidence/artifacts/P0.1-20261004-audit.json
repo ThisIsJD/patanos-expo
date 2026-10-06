@@ -1,0 +1,184 @@
+{
+  "exit": 1,
+  "totals": {
+    "info": 0,
+    "low": 1,
+    "moderate": 18,
+    "high": 32,
+    "critical": 2,
+    "total": 53
+  },
+  "affectedNames": [
+    "@babel/core",
+    "@expo/cli",
+    "@expo/code-signing-certificates",
+    "@expo/config",
+    "@expo/config-plugins",
+    "@expo/metro",
+    "@expo/metro-config",
+    "@expo/prebuild-config",
+    "@humanfs/node",
+    "@jest/environment",
+    "@jest/fake-timers",
+    "@jest/transform",
+    "@react-native/community-cli-plugin",
+    "@react-navigation/core",
+    "@xmldom/xmldom",
+    "babel-jest",
+    "baseline-browser-mapping",
+    "brace-expansion",
+    "braces",
+    "browserslist",
+    "decode-uri-component",
+    "expo",
+    "expo-asset",
+    "expo-constants",
+    "expo-dev-client",
+    "expo-dev-launcher",
+    "expo-linking",
+    "expo-manifests",
+    "expo-router",
+    "expo-splash-screen",
+    "fast-uri",
+    "image-size",
+    "jest-environment-node",
+    "jest-haste-map",
+    "jest-message-util",
+    "js-yaml",
+    "metro",
+    "metro-config",
+    "metro-file-map",
+    "metro-transform-worker",
+    "micromatch",
+    "nanoid",
+    "node-forge",
+    "postcss",
+    "query-string",
+    "react-native",
+    "react-native-reanimated",
+    "shell-quote",
+    "tar",
+    "undici",
+    "uuid",
+    "ws",
+    "xcode"
+  ],
+  "directAffected": [
+    {
+      "name": "expo",
+      "severity": "high",
+      "fix": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-constants",
+      "severity": "moderate",
+      "fix": {
+        "name": "expo-constants",
+        "version": "57.0.20",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-dev-client",
+      "severity": "moderate",
+      "fix": {
+        "name": "expo-dev-client",
+        "version": "57.0.19",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-linking",
+      "severity": "moderate",
+      "fix": {
+        "name": "expo-linking",
+        "version": "57.0.11",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-router",
+      "severity": "moderate",
+      "fix": {
+        "name": "expo-router",
+        "version": "58.0.13",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-splash-screen",
+      "severity": "moderate",
+      "fix": {
+        "name": "expo-splash-screen",
+        "version": "57.0.9",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "react-native",
+      "severity": "high",
+      "fix": {
+        "name": "react-native",
+        "version": "0.87.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "react-native-reanimated",
+      "severity": "high",
+      "fix": true
+    }
+  ],
+  "criticalAdvisories": [
+    {
+      "package": "shell-quote",
+      "severity": "critical",
+      "url": "https://github.com/advisories/GHSA-w7jw-789q-3m8p",
+      "title": "shell-quote quote() does not escape newlines in object .op values"
+    },
+    {
+      "package": "tar",
+      "severity": "critical",
+      "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+      "title": "node-tar: Decompression/parse DoS via unlimited input"
+    }
+  ],
+  "selectedInstalledVersions": [
+    {
+      "path": "node_modules/@react-native/dev-middleware/node_modules/ws",
+      "version": "6.2.3"
+    },
+    {
+      "path": "node_modules/@supabase/realtime-js/node_modules/ws",
+      "version": "8.20.0"
+    },
+    {
+      "path": "node_modules/expo/node_modules/ws",
+      "version": "8.20.0"
+    },
+    {
+      "path": "node_modules/react-native/node_modules/ws",
+      "version": "6.2.3"
+    },
+    {
+      "path": "node_modules/shell-quote",
+      "version": "1.8.3"
+    },
+    {
+      "path": "node_modules/tar",
+      "version": "7.5.13"
+    },
+    {
+      "path": "node_modules/undici",
+      "version": "6.24.1"
+    },
+    {
+      "path": "node_modules/ws",
+      "version": "7.5.10"
+    }
+  ]
+}

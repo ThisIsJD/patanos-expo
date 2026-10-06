@@ -1,0 +1,4 @@
+interface:
+  display_name: "Patanos Expo UI"
+  short_description: "Build consistent native Patanos interfaces"
+  default_prompt: "Use $patanos-expo-ui to implement this Patanos screen with the existing theme and responsive native patterns."

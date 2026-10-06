@@ -6,6 +6,7 @@ node_modules/
 # Expo
 .expo/
 dist/
+# Temporary context backups and build/debug logs stay under ignored dist/.
 web-build/
 expo-env.d.ts
 
@@ -33,6 +34,13 @@ yarn-error.*
 # local env files
 .env
 .env*.local
+.env.*
+!.env.example
+coverage/
+supabase/.temp/
+supabase/staging/local-replay/supabase/.temp/
+supabase/.branches/
+sentry.properties
 
 # typescript
 *.tsbuildinfo

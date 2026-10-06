@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-05",
+  "scope": ["P0-04", "P0-06"],
+  "source": {
+    "environment": "original development, owner-confirmed",
+    "captured_at": "2026-10-05T13:00:31.984301+00:00",
+    "supplement": "ProjectContext/P0.2-schema-supplement.json",
+    "sha256": "2176652529ebb7e7f6d9718421e67998656f109b61258cee3f4a529b7e8f8f9a",
+    "original_baseline_migration_preserved": true,
+    "raw_evidence_preserved": true,
+    "client_transaction_implementations_preserved": true
+  },
+  "local_database": {
+    "project_id": "patanos-local",
+    "replay_completed": true,
+    "repeat_replay_completed": true,
+    "final_sql_checks": 35,
+    "final_sql_exit_code": 0,
+    "column_semantics_matched": 94,
+    "numeric_10_2_columns": 10,
+    "always_identity_columns": 8,
+    "relation_grant_entries_matched": 384,
+    "postgres_default_grant_entries_matched": 48,
+    "realtime_table_members_matched": 7,
+    "physical_column_order_excluded": true,
+    "managed_supabase_admin_defaults_not_altered": true,
+    "rounded_sequence_max_not_used": true,
+    "supplement_query_executed_locally": true,
+    "synthetic_mutations_rolled_back": true,
+    "final_orders": 0,
+    "final_latte_stock": 20,
+    "stack_stopped_with_backup": true
+  },
+  "application_checks": {
+    "test_suites": 9,
+    "runner_successful_cases": 47,
+    "ordinary_cases": 40,
+    "known_expected_failures": 7,
+    "test_ci_exit_code": 0,
+    "lint_exit_code": 0,
+    "lint_errors": 0,
+    "lint_existing_warnings": 14,
+    "db_check_exit_code": 0,
+    "expo_public_config_exit_code": 0,
+    "staging_package": "com.patanos.pos.staging",
+    "preview_and_staging_profiles_explicitly_select_staging": true,
+    "running_eas_build_not_changed_by_local_edits": true
+  },
+  "diagnostics": [
+    {
+      "name": "cashier_unpaid_cancellation_stock",
+      "role": "cashier",
+      "initial_stock": 20,
+      "quantity": 1,
+      "order_status_after_cancellation": "cancelled",
+      "expected_stock": 20,
+      "observed_stock": 19,
+      "desired_invariant_passed": false,
+      "mutations_rolled_back": true,
+      "fixed": false,
+      "tracked_in": ["P1-03", "P2-06"]
+    }
+  ],
+  "limitations": [
+    "Remote staging setup and API isolation/role checks not executed or authorized",
+    "Actual EAS APK completion, package/backend and phone/tablet checks pending",
+    "Source JSON sequence maximum rounded; exact bound needs string-safe refresh",
+    "Protected managed-role defaults remain Supabase-owned",
+    "Original RLS, RPC, stock, queue and numeric validation defects remain",
+    "Sentry deferred to optional P12"
+  ],
+  "completion": {
+    "P0-04": "partial",
+    "P0-05": "complete",
+    "P0-06": "partial",
+    "P0.2_checked_tasks": 1,
+    "P0.2_total_tasks": 3,
+    "P0_checked_tasks": 4,
+    "P0_total_tasks": 9,
+    "remote_mutations": false
+  }
+}

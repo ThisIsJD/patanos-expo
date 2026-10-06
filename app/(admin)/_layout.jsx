@@ -17,8 +17,9 @@ function POSButton() {
   const router = useRouter()
   return (
     <TouchableOpacity
-      onPress={() => router.push('/(pos)/order')}
-      style={{ paddingRight: 16 }}
+      onPress={() => router.dismissTo('/(pos)/order')}
+      accessibilityRole="button" accessibilityLabel="Return to POS"
+      style={{ marginRight: 16, minWidth: 48, minHeight: 48, justifyContent: 'center', alignItems: 'center' }}
       hitSlop={8}>
       <Ionicons name="cart" size={24} color={COLORS.accentGold} />
     </TouchableOpacity>

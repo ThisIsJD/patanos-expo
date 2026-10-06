@@ -1,0 +1,2572 @@
+{
+	"views": [
+		{
+			"name": "category_sales",
+			"definition": " SELECT o.created_at::date AS sale_date,\n    c.name AS category_name,\n    sum(oi.quantity) AS items_sold,\n    sum(oi.subtotal) AS revenue\n   FROM order_items oi\n     JOIN orders o ON o.id = oi.order_id\n     JOIN menu_items mi ON mi.id = oi.menu_item_id\n     JOIN categories c ON c.id = mi.category_id\n  WHERE o.status = 'completed'::order_status\n  GROUP BY (o.created_at::date), c.name\n  ORDER BY (o.created_at::date) DESC, (sum(oi.subtotal)) DESC;"
+		},
+		{
+			"name": "daily_sales",
+			"definition": " SELECT created_at::date AS sale_date,\n    count(*) AS total_orders,\n    COALESCE(sum(total_amount), 0::numeric) AS total_revenue,\n    COALESCE(avg(total_amount), 0::numeric) AS avg_order_value,\n    COALESCE(sum(total_amount) FILTER (WHERE payment_method = 'cash'::payment_method), 0::numeric) AS cash_sales,\n    COALESCE(sum(total_amount) FILTER (WHERE payment_method = 'gcash'::payment_method), 0::numeric) AS gcash_sales,\n    count(*) FILTER (WHERE order_type = 'dine-in'::order_type) AS dinein_count,\n    count(*) FILTER (WHERE order_type = 'takeout'::order_type) AS takeout_count,\n    count(*) FILTER (WHERE order_type = 'delivery'::order_type) AS delivery_count\n   FROM orders\n  WHERE status = 'completed'::order_status\n  GROUP BY (created_at::date)\n  ORDER BY (created_at::date) DESC;"
+		}
+	],
+	"columns": [
+		{
+			"udt_name": "uuid",
+			"data_type": "uuid",
+			"table_name": "categories",
+			"column_name": "id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "gen_random_uuid()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "categories",
+			"column_name": "name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "categories",
+			"column_name": "slug",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "categories",
+			"column_name": "icon",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "categories",
+			"column_name": "sort_order",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "item_status",
+			"data_type": "USER-DEFINED",
+			"table_name": "categories",
+			"column_name": "status",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'published'::item_status",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "categories",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "categories",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "date",
+			"data_type": "date",
+			"table_name": "category_sales",
+			"column_name": "sale_date",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "category_sales",
+			"column_name": "category_name",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "category_sales",
+			"column_name": "items_sold",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "category_sales",
+			"column_name": "revenue",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "date",
+			"data_type": "date",
+			"table_name": "daily_sales",
+			"column_name": "sale_date",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "daily_sales",
+			"column_name": "total_orders",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "daily_sales",
+			"column_name": "total_revenue",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "daily_sales",
+			"column_name": "avg_order_value",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "daily_sales",
+			"column_name": "cash_sales",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "daily_sales",
+			"column_name": "gcash_sales",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "daily_sales",
+			"column_name": "dinein_count",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "daily_sales",
+			"column_name": "takeout_count",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "daily_sales",
+			"column_name": "delivery_count",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "gallery_photos",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "gallery_photos",
+			"column_name": "image_url",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "gallery_photos",
+			"column_name": "caption",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "''::text",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "gallery_photos",
+			"column_name": "link_url",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "gallery_photos",
+			"column_name": "sort_order",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "item_status",
+			"data_type": "USER-DEFINED",
+			"table_name": "gallery_photos",
+			"column_name": "status",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'published'::item_status",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "gallery_photos",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "gallery_photos",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "inventory",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "inventory",
+			"column_name": "menu_item_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "inventory",
+			"column_name": "stock_count",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "inventory",
+			"column_name": "low_stock_threshold",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "10",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "bool",
+			"data_type": "boolean",
+			"table_name": "inventory",
+			"column_name": "track_inventory",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "false",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "inventory",
+			"column_name": "last_restocked_at",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "inventory",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "menu_items",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "menu_items",
+			"column_name": "name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "menu_items",
+			"column_name": "description",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "menu_items",
+			"column_name": "price",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "menu_items",
+			"column_name": "size_label",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "uuid",
+			"data_type": "uuid",
+			"table_name": "menu_items",
+			"column_name": "category_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "menu_items",
+			"column_name": "image_url",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "item_status",
+			"data_type": "USER-DEFINED",
+			"table_name": "menu_items",
+			"column_name": "status",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'published'::item_status",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "bool",
+			"data_type": "boolean",
+			"table_name": "menu_items",
+			"column_name": "is_featured",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "false",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "bool",
+			"data_type": "boolean",
+			"table_name": "menu_items",
+			"column_name": "available",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "true",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "menu_items",
+			"column_name": "sort_order",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "menu_items",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "menu_items",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "modifier_groups",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "modifier_groups",
+			"column_name": "name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "uuid",
+			"data_type": "uuid",
+			"table_name": "modifier_groups",
+			"column_name": "category_id",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "modifier_groups",
+			"column_name": "menu_item_id",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "modifier_groups",
+			"column_name": "min_select",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "modifier_groups",
+			"column_name": "max_select",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "modifier_groups",
+			"column_name": "sort_order",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "item_status",
+			"data_type": "USER-DEFINED",
+			"table_name": "modifier_groups",
+			"column_name": "status",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'published'::item_status",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "modifier_groups",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "modifier_groups",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "modifiers",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "modifiers",
+			"column_name": "modifier_group_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "modifiers",
+			"column_name": "name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "modifiers",
+			"column_name": "extra_price",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "bool",
+			"data_type": "boolean",
+			"table_name": "modifiers",
+			"column_name": "available",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "true",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "modifiers",
+			"column_name": "sort_order",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "modifiers",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "modifiers",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_item_modifiers",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_item_modifiers",
+			"column_name": "order_item_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_item_modifiers",
+			"column_name": "modifier_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "order_item_modifiers",
+			"column_name": "modifier_name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "order_item_modifiers",
+			"column_name": "extra_price",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "order_item_modifiers",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_items",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_items",
+			"column_name": "order_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "order_items",
+			"column_name": "menu_item_id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "order_items",
+			"column_name": "item_name",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "order_items",
+			"column_name": "size_label",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int4",
+			"data_type": "integer",
+			"table_name": "order_items",
+			"column_name": "quantity",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "1",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "order_items",
+			"column_name": "unit_price",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "order_items",
+			"column_name": "subtotal",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "ALWAYS",
+			"column_default": null,
+			"generation_expression": "((quantity)::numeric * unit_price)"
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "order_items",
+			"column_name": "notes",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "order_items",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "int8",
+			"data_type": "bigint",
+			"table_name": "orders",
+			"column_name": "id",
+			"is_identity": "YES",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "orders",
+			"column_name": "order_number",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "order_type",
+			"data_type": "USER-DEFINED",
+			"table_name": "orders",
+			"column_name": "order_type",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'dine-in'::order_type",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "order_status",
+			"data_type": "USER-DEFINED",
+			"table_name": "orders",
+			"column_name": "status",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'open'::order_status",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "orders",
+			"column_name": "subtotal",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "orders",
+			"column_name": "discount_amount",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "orders",
+			"column_name": "total_amount",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "0",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "payment_method",
+			"data_type": "USER-DEFINED",
+			"table_name": "orders",
+			"column_name": "payment_method",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "orders",
+			"column_name": "payment_ref",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "orders",
+			"column_name": "amount_tendered",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "numeric",
+			"data_type": "numeric",
+			"table_name": "orders",
+			"column_name": "change_amount",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "orders",
+			"column_name": "notes",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "uuid",
+			"data_type": "uuid",
+			"table_name": "orders",
+			"column_name": "created_by",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "orders",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "orders",
+			"column_name": "completed_at",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "orders",
+			"column_name": "cancelled_at",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "orders",
+			"column_name": "cancel_reason",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "uuid",
+			"data_type": "uuid",
+			"table_name": "profiles",
+			"column_name": "id",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "profiles",
+			"column_name": "email",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "profiles",
+			"column_name": "full_name",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "user_role",
+			"data_type": "USER-DEFINED",
+			"table_name": "profiles",
+			"column_name": "role",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "'cashier'::user_role",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "text",
+			"data_type": "text",
+			"table_name": "profiles",
+			"column_name": "avatar_url",
+			"is_identity": "NO",
+			"is_nullable": "YES",
+			"is_generated": "NEVER",
+			"column_default": null,
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "profiles",
+			"column_name": "created_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		},
+		{
+			"udt_name": "timestamptz",
+			"data_type": "timestamp with time zone",
+			"table_name": "profiles",
+			"column_name": "updated_at",
+			"is_identity": "NO",
+			"is_nullable": "NO",
+			"is_generated": "NEVER",
+			"column_default": "now()",
+			"generation_expression": null
+		}
+	],
+	"indexes": [
+		{
+			"indexdef": "CREATE UNIQUE INDEX categories_pkey ON public.categories USING btree (id)",
+			"indexname": "categories_pkey",
+			"tablename": "categories"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX categories_slug_key ON public.categories USING btree (slug)",
+			"indexname": "categories_slug_key",
+			"tablename": "categories"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_categories_sort ON public.categories USING btree (sort_order)",
+			"indexname": "idx_categories_sort",
+			"tablename": "categories"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_categories_status ON public.categories USING btree (status)",
+			"indexname": "idx_categories_status",
+			"tablename": "categories"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX gallery_photos_pkey ON public.gallery_photos USING btree (id)",
+			"indexname": "gallery_photos_pkey",
+			"tablename": "gallery_photos"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_gallery_sort ON public.gallery_photos USING btree (sort_order)",
+			"indexname": "idx_gallery_sort",
+			"tablename": "gallery_photos"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_gallery_status ON public.gallery_photos USING btree (status)",
+			"indexname": "idx_gallery_status",
+			"tablename": "gallery_photos"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_inventory_low_stock ON public.inventory USING btree (stock_count) WHERE (track_inventory = true)",
+			"indexname": "idx_inventory_low_stock",
+			"tablename": "inventory"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX inventory_menu_item_id_key ON public.inventory USING btree (menu_item_id)",
+			"indexname": "inventory_menu_item_id_key",
+			"tablename": "inventory"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX inventory_pkey ON public.inventory USING btree (id)",
+			"indexname": "inventory_pkey",
+			"tablename": "inventory"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_menu_items_available ON public.menu_items USING btree (available)",
+			"indexname": "idx_menu_items_available",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_menu_items_category ON public.menu_items USING btree (category_id)",
+			"indexname": "idx_menu_items_category",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_menu_items_featured ON public.menu_items USING btree (is_featured) WHERE (is_featured = true)",
+			"indexname": "idx_menu_items_featured",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_menu_items_sort ON public.menu_items USING btree (category_id, sort_order, name)",
+			"indexname": "idx_menu_items_sort",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_menu_items_status ON public.menu_items USING btree (status)",
+			"indexname": "idx_menu_items_status",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX menu_items_pkey ON public.menu_items USING btree (id)",
+			"indexname": "menu_items_pkey",
+			"tablename": "menu_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_modifier_groups_category ON public.modifier_groups USING btree (category_id) WHERE (category_id IS NOT NULL)",
+			"indexname": "idx_modifier_groups_category",
+			"tablename": "modifier_groups"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_modifier_groups_menu_item ON public.modifier_groups USING btree (menu_item_id) WHERE (menu_item_id IS NOT NULL)",
+			"indexname": "idx_modifier_groups_menu_item",
+			"tablename": "modifier_groups"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_modifier_groups_status ON public.modifier_groups USING btree (status)",
+			"indexname": "idx_modifier_groups_status",
+			"tablename": "modifier_groups"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX modifier_groups_pkey ON public.modifier_groups USING btree (id)",
+			"indexname": "modifier_groups_pkey",
+			"tablename": "modifier_groups"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_modifiers_available ON public.modifiers USING btree (available)",
+			"indexname": "idx_modifiers_available",
+			"tablename": "modifiers"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_modifiers_group ON public.modifiers USING btree (modifier_group_id)",
+			"indexname": "idx_modifiers_group",
+			"tablename": "modifiers"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX modifiers_pkey ON public.modifiers USING btree (id)",
+			"indexname": "modifiers_pkey",
+			"tablename": "modifiers"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_order_item_modifiers_modifier ON public.order_item_modifiers USING btree (modifier_id)",
+			"indexname": "idx_order_item_modifiers_modifier",
+			"tablename": "order_item_modifiers"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_order_item_modifiers_order_item ON public.order_item_modifiers USING btree (order_item_id)",
+			"indexname": "idx_order_item_modifiers_order_item",
+			"tablename": "order_item_modifiers"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX order_item_modifiers_pkey ON public.order_item_modifiers USING btree (id)",
+			"indexname": "order_item_modifiers_pkey",
+			"tablename": "order_item_modifiers"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_order_items_menu_item ON public.order_items USING btree (menu_item_id)",
+			"indexname": "idx_order_items_menu_item",
+			"tablename": "order_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_order_items_order ON public.order_items USING btree (order_id)",
+			"indexname": "idx_order_items_order",
+			"tablename": "order_items"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX order_items_pkey ON public.order_items USING btree (id)",
+			"indexname": "order_items_pkey",
+			"tablename": "order_items"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_orders_created_at ON public.orders USING btree (created_at DESC)",
+			"indexname": "idx_orders_created_at",
+			"tablename": "orders"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_orders_created_by ON public.orders USING btree (created_by)",
+			"indexname": "idx_orders_created_by",
+			"tablename": "orders"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_orders_daily ON public.orders USING btree (created_at, order_number)",
+			"indexname": "idx_orders_daily",
+			"tablename": "orders"
+		},
+		{
+			"indexdef": "CREATE INDEX idx_orders_status ON public.orders USING btree (status)",
+			"indexname": "idx_orders_status",
+			"tablename": "orders"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)",
+			"indexname": "orders_pkey",
+			"tablename": "orders"
+		},
+		{
+			"indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)",
+			"indexname": "profiles_pkey",
+			"tablename": "profiles"
+		}
+	],
+	"policies": [
+		{
+			"cmd": "DELETE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "categories",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete categories",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "categories",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert categories",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "categories",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update categories",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "categories",
+			"permissive": "PERMISSIVE",
+			"policyname": "Authenticated can read all categories",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(status = 'published'::item_status)",
+			"roles": [
+				"public"
+			],
+			"tablename": "categories",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read published categories",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "gallery_photos",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete gallery photos",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "gallery_photos",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert gallery photos",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "gallery_photos",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update gallery photos",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "gallery_photos",
+			"permissive": "PERMISSIVE",
+			"policyname": "Authenticated can read all gallery photos",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(status = 'published'::item_status)",
+			"roles": [
+				"public"
+			],
+			"tablename": "gallery_photos",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read published gallery photos",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "inventory",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert inventory",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "inventory",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update inventory",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "inventory",
+			"permissive": "PERMISSIVE",
+			"policyname": "Staff can read inventory",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "menu_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete menu items",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "menu_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert menu items",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "menu_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update menu items",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "menu_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Authenticated can read all menu items",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(status = 'published'::item_status)",
+			"roles": [
+				"public"
+			],
+			"tablename": "menu_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read published menu items",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifier_groups",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete modifier groups",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "modifier_groups",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert modifier groups",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifier_groups",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update modifier groups",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifier_groups",
+			"permissive": "PERMISSIVE",
+			"policyname": "Authenticated can read all modifier groups",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(status = 'published'::item_status)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifier_groups",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read published modifier groups",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete modifiers",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can insert modifiers",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = 'admin'::user_role)"
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update modifiers",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Authenticated can read all modifiers",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(EXISTS ( SELECT 1\n   FROM modifier_groups mg\n  WHERE ((mg.id = modifiers.modifier_group_id) AND (mg.status = 'published'::item_status))))",
+			"roles": [
+				"public"
+			],
+			"tablename": "modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read available modifiers",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "order_item_modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Cashier can create order item modifiers",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = ANY (ARRAY['admin'::user_role, 'cashier'::user_role]))"
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "order_item_modifiers",
+			"permissive": "PERMISSIVE",
+			"policyname": "Staff can read order item modifiers",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "order_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Cashier can create order items",
+			"schemaname": "public",
+			"with_check": "(get_user_role() = ANY (ARRAY['admin'::user_role, 'cashier'::user_role]))"
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "order_items",
+			"permissive": "PERMISSIVE",
+			"policyname": "Staff can read order items",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "orders",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can read all orders",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "orders",
+			"permissive": "PERMISSIVE",
+			"policyname": "Cashier can create orders",
+			"schemaname": "public",
+			"with_check": "((get_user_role() = ANY (ARRAY['admin'::user_role, 'cashier'::user_role])) AND (created_by = auth.uid()))"
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "((auth.uid() IS NOT NULL) AND ((created_at)::date = CURRENT_DATE))",
+			"roles": [
+				"public"
+			],
+			"tablename": "orders",
+			"permissive": "PERMISSIVE",
+			"policyname": "Staff can read todays orders",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(auth.uid() IS NOT NULL)",
+			"roles": [
+				"public"
+			],
+			"tablename": "orders",
+			"permissive": "PERMISSIVE",
+			"policyname": "Staff can update orders",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "profiles",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can read all profiles",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(get_user_role() = 'admin'::user_role)",
+			"roles": [
+				"public"
+			],
+			"tablename": "profiles",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update profiles",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(id = auth.uid())",
+			"roles": [
+				"public"
+			],
+			"tablename": "profiles",
+			"permissive": "PERMISSIVE",
+			"policyname": "Users can read own profile",
+			"schemaname": "public",
+			"with_check": null
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "(id = auth.uid())",
+			"roles": [
+				"public"
+			],
+			"tablename": "profiles",
+			"permissive": "PERMISSIVE",
+			"policyname": "Users can update own profile",
+			"schemaname": "public",
+			"with_check": "(id = auth.uid())"
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "((bucket_id = 'gallery-images'::text) AND (get_user_role() = 'admin'::user_role))",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete gallery images",
+			"schemaname": "storage",
+			"with_check": null
+		},
+		{
+			"cmd": "DELETE",
+			"qual": "((bucket_id = 'menu-images'::text) AND (get_user_role() = 'admin'::user_role))",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can delete menu images",
+			"schemaname": "storage",
+			"with_check": null
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "((bucket_id = 'gallery-images'::text) AND (get_user_role() = 'admin'::user_role))",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update gallery images",
+			"schemaname": "storage",
+			"with_check": null
+		},
+		{
+			"cmd": "UPDATE",
+			"qual": "((bucket_id = 'menu-images'::text) AND (get_user_role() = 'admin'::user_role))",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can update menu images",
+			"schemaname": "storage",
+			"with_check": null
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can upload gallery images",
+			"schemaname": "storage",
+			"with_check": "((bucket_id = 'gallery-images'::text) AND (get_user_role() = 'admin'::user_role))"
+		},
+		{
+			"cmd": "INSERT",
+			"qual": null,
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Admin can upload menu images",
+			"schemaname": "storage",
+			"with_check": "((bucket_id = 'menu-images'::text) AND (get_user_role() = 'admin'::user_role))"
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(bucket_id = 'gallery-images'::text)",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read gallery images",
+			"schemaname": "storage",
+			"with_check": null
+		},
+		{
+			"cmd": "SELECT",
+			"qual": "(bucket_id = 'menu-images'::text)",
+			"roles": [
+				"public"
+			],
+			"tablename": "objects",
+			"permissive": "PERMISSIVE",
+			"policyname": "Public can read menu images",
+			"schemaname": "storage",
+			"with_check": null
+		}
+	],
+	"triggers": [
+		{
+			"name": "on_auth_user_created",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()",
+			"table_name": "users",
+			"schema_name": "auth"
+		},
+		{
+			"name": "categories_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER categories_updated_at BEFORE UPDATE ON categories FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "categories",
+			"schema_name": "public"
+		},
+		{
+			"name": "gallery_photos_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER gallery_photos_updated_at BEFORE UPDATE ON gallery_photos FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "gallery_photos",
+			"schema_name": "public"
+		},
+		{
+			"name": "inventory_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER inventory_updated_at BEFORE UPDATE ON inventory FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "inventory",
+			"schema_name": "public"
+		},
+		{
+			"name": "menu_items_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER menu_items_updated_at BEFORE UPDATE ON menu_items FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "menu_items",
+			"schema_name": "public"
+		},
+		{
+			"name": "modifier_groups_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER modifier_groups_updated_at BEFORE UPDATE ON modifier_groups FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "modifier_groups",
+			"schema_name": "public"
+		},
+		{
+			"name": "modifiers_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER modifiers_updated_at BEFORE UPDATE ON modifiers FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "modifiers",
+			"schema_name": "public"
+		},
+		{
+			"name": "order_items_decrement_stock",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER order_items_decrement_stock AFTER INSERT ON order_items FOR EACH ROW EXECUTE FUNCTION decrement_stock()",
+			"table_name": "order_items",
+			"schema_name": "public"
+		},
+		{
+			"name": "orders_restore_stock_on_cancel",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER orders_restore_stock_on_cancel AFTER UPDATE ON orders FOR EACH ROW EXECUTE FUNCTION restore_stock_on_cancel()",
+			"table_name": "orders",
+			"schema_name": "public"
+		},
+		{
+			"name": "orders_set_order_number",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER orders_set_order_number BEFORE INSERT ON orders FOR EACH ROW WHEN (new.order_number IS NULL OR new.order_number = ''::text) EXECUTE FUNCTION generate_order_number()",
+			"table_name": "orders",
+			"schema_name": "public"
+		},
+		{
+			"name": "profiles_updated_at",
+			"enabled": "O",
+			"definition": "CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at()",
+			"table_name": "profiles",
+			"schema_name": "public"
+		}
+	],
+	"relations": [
+		{
+			"kind": "r",
+			"name": "categories",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "v",
+			"name": "category_sales",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": false,
+			"schema_name": "public"
+		},
+		{
+			"kind": "v",
+			"name": "daily_sales",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": false,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "gallery_photos",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "inventory",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "menu_items",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "modifier_groups",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "modifiers",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "order_item_modifiers",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "order_items",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "orders",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "profiles",
+			"owner": "postgres",
+			"grants": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "public"
+		},
+		{
+			"kind": "r",
+			"name": "buckets",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin,postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "buckets_analytics",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "buckets_vectors",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=r/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "migrations",
+			"owner": "supabase_storage_admin",
+			"grants": null,
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "objects",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin,postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "s3_multipart_uploads",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "s3_multipart_uploads_parts",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		},
+		{
+			"kind": "r",
+			"name": "vector_indexes",
+			"owner": "supabase_storage_admin",
+			"grants": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=r/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+			"options": null,
+			"rls_forced": false,
+			"rls_enabled": true,
+			"schema_name": "storage"
+		}
+	],
+	"constraints": [
+		{
+			"name": "categories_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "categories"
+		},
+		{
+			"name": "categories_slug_key",
+			"definition": "UNIQUE (slug)",
+			"table_name": "categories"
+		},
+		{
+			"name": "gallery_photos_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "gallery_photos"
+		},
+		{
+			"name": "inventory_menu_item_id_fkey",
+			"definition": "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE",
+			"table_name": "inventory"
+		},
+		{
+			"name": "inventory_menu_item_id_key",
+			"definition": "UNIQUE (menu_item_id)",
+			"table_name": "inventory"
+		},
+		{
+			"name": "inventory_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "inventory"
+		},
+		{
+			"name": "inventory_stock_count_check",
+			"definition": "CHECK (stock_count >= 0)",
+			"table_name": "inventory"
+		},
+		{
+			"name": "menu_items_category_id_fkey",
+			"definition": "FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT",
+			"table_name": "menu_items"
+		},
+		{
+			"name": "menu_items_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "menu_items"
+		},
+		{
+			"name": "menu_items_price_check",
+			"definition": "CHECK (price >= 0::numeric)",
+			"table_name": "menu_items"
+		},
+		{
+			"name": "modifier_group_target",
+			"definition": "CHECK (NOT (category_id IS NOT NULL AND menu_item_id IS NOT NULL))",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifier_groups_category_id_fkey",
+			"definition": "FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifier_groups_max_select_check",
+			"definition": "CHECK (max_select IS NULL OR max_select >= 1)",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifier_groups_menu_item_id_fkey",
+			"definition": "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifier_groups_min_select_check",
+			"definition": "CHECK (min_select >= 0)",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifier_groups_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "modifier_groups"
+		},
+		{
+			"name": "modifiers_extra_price_check",
+			"definition": "CHECK (extra_price >= 0::numeric)",
+			"table_name": "modifiers"
+		},
+		{
+			"name": "modifiers_modifier_group_id_fkey",
+			"definition": "FOREIGN KEY (modifier_group_id) REFERENCES modifier_groups(id) ON DELETE CASCADE",
+			"table_name": "modifiers"
+		},
+		{
+			"name": "modifiers_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "modifiers"
+		},
+		{
+			"name": "modifiers_extra_price_positive",
+			"definition": "CHECK (extra_price >= 0::numeric)",
+			"table_name": "order_item_modifiers"
+		},
+		{
+			"name": "order_item_modifiers_modifier_id_fkey",
+			"definition": "FOREIGN KEY (modifier_id) REFERENCES modifiers(id) ON DELETE RESTRICT",
+			"table_name": "order_item_modifiers"
+		},
+		{
+			"name": "order_item_modifiers_order_item_id_fkey",
+			"definition": "FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE",
+			"table_name": "order_item_modifiers"
+		},
+		{
+			"name": "order_item_modifiers_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "order_item_modifiers"
+		},
+		{
+			"name": "order_items_menu_item_id_fkey",
+			"definition": "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE RESTRICT",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_order_id_fkey",
+			"definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_price_positive",
+			"definition": "CHECK (unit_price >= 0::numeric)",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_quantity_check",
+			"definition": "CHECK (quantity > 0)",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_quantity_positive",
+			"definition": "CHECK (quantity >= 1)",
+			"table_name": "order_items"
+		},
+		{
+			"name": "order_items_unit_price_check",
+			"definition": "CHECK (unit_price >= 0::numeric)",
+			"table_name": "order_items"
+		},
+		{
+			"name": "orders_created_by_fkey",
+			"definition": "FOREIGN KEY (created_by) REFERENCES profiles(id) ON DELETE RESTRICT",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_discount_amount_check",
+			"definition": "CHECK (discount_amount >= 0::numeric)",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_order_type_check",
+			"definition": "CHECK (order_type = ANY (ARRAY['dine-in'::order_type, 'takeout'::order_type, 'delivery'::order_type]))",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_payment_method_check",
+			"definition": "CHECK (payment_method IS NULL OR (payment_method = ANY (ARRAY['cash'::payment_method, 'gcash'::payment_method])))",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_status_check",
+			"definition": "CHECK (status = ANY (ARRAY['open'::order_status, 'completed'::order_status, 'cancelled'::order_status]))",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_subtotal_check",
+			"definition": "CHECK (subtotal >= 0::numeric)",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_subtotal_positive",
+			"definition": "CHECK (subtotal >= 0::numeric)",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_total_amount_check",
+			"definition": "CHECK (total_amount >= 0::numeric)",
+			"table_name": "orders"
+		},
+		{
+			"name": "orders_total_positive",
+			"definition": "CHECK (total_amount >= 0::numeric)",
+			"table_name": "orders"
+		},
+		{
+			"name": "profiles_id_fkey",
+			"definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
+			"table_name": "profiles"
+		},
+		{
+			"name": "profiles_pkey",
+			"definition": "PRIMARY KEY (id)",
+			"table_name": "profiles"
+		}
+	],
+	"enum_values": [
+		{
+			"value": "published",
+			"type_name": "item_status"
+		},
+		{
+			"value": "draft",
+			"type_name": "item_status"
+		},
+		{
+			"value": "archived",
+			"type_name": "item_status"
+		},
+		{
+			"value": "open",
+			"type_name": "order_status"
+		},
+		{
+			"value": "completed",
+			"type_name": "order_status"
+		},
+		{
+			"value": "cancelled",
+			"type_name": "order_status"
+		},
+		{
+			"value": "dine-in",
+			"type_name": "order_type"
+		},
+		{
+			"value": "takeout",
+			"type_name": "order_type"
+		},
+		{
+			"value": "delivery",
+			"type_name": "order_type"
+		},
+		{
+			"value": "cash",
+			"type_name": "payment_method"
+		},
+		{
+			"value": "gcash",
+			"type_name": "payment_method"
+		},
+		{
+			"value": "admin",
+			"type_name": "user_role"
+		},
+		{
+			"value": "cashier",
+			"type_name": "user_role"
+		}
+	],
+	"database_timezone": "UTC",
+	"function_permissions": [
+		{
+			"name": "decrement_stock",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": null,
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": false,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "generate_order_number",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": null,
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": false,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "get_user_role",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": [
+				"search_path=\"\""
+			],
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": true,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "handle_new_user",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": [
+				"search_path=\"\""
+			],
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": true,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "place_order",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": [
+				"search_path=public"
+			],
+			"arguments": "p_order_type text, p_subtotal numeric, p_total_amount numeric, p_notes text, p_items jsonb",
+			"anon_can_execute": true,
+			"security_definer": true,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "restore_stock_on_cancel",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": null,
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": false,
+			"authenticated_can_execute": true
+		},
+		{
+			"name": "update_updated_at",
+			"owner": "postgres",
+			"grants": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+			"settings": null,
+			"arguments": "",
+			"anon_can_execute": true,
+			"security_definer": false,
+			"authenticated_can_execute": true
+		}
+	]
+}

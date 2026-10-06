@@ -7,12 +7,13 @@ import { enqueue, getQueue, syncQueue } from '@/src/lib/offlineQueue'
 import { validateOrder } from '@/src/utils/validateOrder'
 
 export function useOrders() {
-  const { session } = useAuth()
+  const { session, canOperate, operationGuard, runStaffOperation } = useAuth()
   const { isOnline, onStatusChange } = useNetworkStatus()
   const [openOrders, setOpenOrders] = useState([])
   const [completedOrders, setCompletedOrders] = useState([])
   const [queuedOrders, setQueuedOrders] = useState([])
   const [pendingCount, setPendingCount] = useState(0)
+  const [heldCount, setHeldCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const syncing = useRef(false)
 
@@ -65,7 +66,7 @@ export function useOrders() {
    * Place a new order via Supabase RPC (atomic transaction).
    * All inserts (order + items + modifiers) happen in a single DB transaction.
    */
-  const _placeOrderOnline = async ({ items, orderType, subtotal, notes }) => {
+  const _placeOrderOnline = useCallback(async ({ items, orderType, subtotal, notes }) => {
     const userId = session?.user?.id
     if (!userId) return { data: null, error: 'Not authenticated' }
 
@@ -87,22 +88,26 @@ export function useOrders() {
       })),
     }))
 
-    const { data, error } = await supabase.rpc('place_order', {
-      p_order_type: orderType,
-      p_subtotal: subtotal,
-      p_total_amount: subtotal,
-      p_notes: notes || null,
-      p_items: rpcItems,
-    })
+    return runStaffOperation(userId, async () => {
+      const { data, error } = await supabase.rpc('place_order', {
+        p_order_type: orderType,
+        p_subtotal: subtotal,
+        p_total_amount: subtotal,
+        p_notes: notes || null,
+        p_items: rpcItems,
+      })
 
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
-  }
+      if (error) return { data: null, error: error.message }
+      return { data, error: null }
+    })
+  }, [runStaffOperation, session?.user?.id])
 
   /**
    * Place order — queues locally if offline, otherwise sends to Supabase.
    */
   const placeOrder = async ({ items, orderType, subtotal, notes }) => {
+    const userId = session?.user?.id
+    if (!canOperate(userId)) return { data: null, error: 'Unlock this staff account before changing orders.' }
     // Validate before online insert OR offline queue
     const validation = validateOrder({ items, orderType, subtotal })
     if (!validation.valid) return { data: null, error: validation.error }
@@ -112,21 +117,25 @@ export function useOrders() {
     }
 
     // Offline — queue locally
-    const count = await enqueue({ items, orderType, subtotal, notes })
-    setPendingCount(count)
-    await refreshQueuedOrders()
-    return {
-      data: { order_number: `Q${count}`, offline: true },
-      error: null,
-    }
+    return runStaffOperation(userId, async () => {
+      const count = await enqueue({ items, orderType, subtotal, notes, staffUserId: userId })
+      setPendingCount(count)
+      await refreshQueuedOrders()
+      return {
+        data: { order_number: `Q${count}`, offline: true },
+        error: null,
+      }
+    })
   }
 
   // Load queued orders from AsyncStorage
   const refreshQueuedOrders = useCallback(async () => {
     const queue = await getQueue()
     setPendingCount(queue.length)
+    setHeldCount(queue.filter(record => record.staffUserId !== session?.user?.id).length)
     // Convert queue items to a shape similar to real orders for display
-    setQueuedOrders(queue.map((q, idx) => ({
+    // Unowned legacy/other-account records are held, not shown as the current cashier's sales.
+    setQueuedOrders(queue.filter(record => record.staffUserId === session?.user?.id).map((q, idx) => ({
       id: q.id,
       order_number: `Q${idx + 1}`,
       offline: true,
@@ -148,25 +157,30 @@ export function useOrders() {
         })),
       })),
     })))
-  }, [])
+  }, [session?.user?.id])
 
   // Refresh pending count and queued orders on mount
   useEffect(() => {
     refreshQueuedOrders()
-  }, [])
+  }, [refreshQueuedOrders])
 
   // Auto-sync queued orders when coming back online
   const trySyncQueue = useCallback(async () => {
-    if (syncing.current || !session?.user?.id) return
+    const userId = session?.user?.id
+    if (syncing.current || !canOperate(userId)) return
+    const canContinue = operationGuard(userId)
     syncing.current = true
     try {
       const queue = await getQueue()
+      if (!canContinue()) return
       if (queue.length === 0) {
         syncing.current = false
         await refreshQueuedOrders()
         return
       }
-      const { synced, failed } = await syncQueue(_placeOrderOnline)
+      const { synced, failed } = await syncQueue(_placeOrderOnline, {
+        canContinue, canSubmit: queued => queued.staffUserId === userId,
+      })
       if (synced > 0) {
         await fetchOrders()          // populate openOrders FIRST
         await refreshQueuedOrders()  // THEN clear queuedOrders display
@@ -177,11 +191,11 @@ export function useOrders() {
       } else {
         await refreshQueuedOrders()
       }
-    } catch (e) {
-      console.warn('Sync failed:', e)
-    }
-    syncing.current = false
-  }, [session, fetchOrders, refreshQueuedOrders])
+    } catch {
+      // Keep payloads out of logs; a lost acknowledgement still needs P2 replay protection.
+      console.warn('Queue sync could not be confirmed.')
+    } finally { syncing.current = false }
+  }, [session?.user?.id, canOperate, operationGuard, _placeOrderOnline, fetchOrders, refreshQueuedOrders])
 
   // Only trigger sync from onStatusChange (single listener, no duplication)
   useEffect(() => {
@@ -193,44 +207,50 @@ export function useOrders() {
   /**
    * Complete an order (collect payment).
    */
-  const completeOrder = async ({ orderId, paymentMethod, amountTendered, changeAmount, paymentRef }) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({
-        status: 'completed',
-        payment_method: paymentMethod,
-        amount_tendered: amountTendered || null,
-        change_amount: changeAmount || null,
-        payment_ref: paymentRef || null,
-        completed_at: new Date().toISOString(),
+  const completeOrder = async ({ orderId, paymentMethod, amountTendered, paymentRef }) => {
+    return runStaffOperation(session?.user?.id, async () => {
+    try {
+      const { data, error } = await supabase.rpc('complete_order', {
+        p_order_id: orderId,
+        p_payment_method: paymentMethod,
+        p_amount_tendered: amountTendered ?? null,
+        p_payment_ref: paymentRef || null,
       })
-      .eq('id', orderId)
-
-    if (error) {
-      Alert.alert('Error', error.message)
-      return { error: error.message }
+      if (error) {
+        Alert.alert('Error', error.message)
+        return { error: error.message }
+      }
+      if (!data?.id) throw new Error('Missing payment confirmation')
+      return { data, error: null }
+    } catch {
+      const error = 'Unable to confirm payment. Refresh this order before trying again.'
+      Alert.alert('Payment not confirmed', error)
+      return { error }
     }
-    return { error: null }
+    })
   }
 
   /**
    * Cancel an order.
    */
-  const cancelOrder = async (orderId, reason = '') => {
-    const { error } = await supabase
-      .from('orders')
-      .update({
-        status: 'cancelled',
-        cancelled_at: new Date().toISOString(),
-        cancel_reason: reason || null,
+  const cancelOrder = async (orderId, reason = '', releaseStock = false) => {
+    return runStaffOperation(session?.user?.id, async () => {
+    try {
+      const { data, error } = await supabase.rpc('cancel_order', {
+        p_order_id: orderId, p_reason: reason, p_release_stock: releaseStock,
       })
-      .eq('id', orderId)
-
-    if (error) {
-      Alert.alert('Error', error.message)
-      return { error: error.message }
+      if (error) {
+        Alert.alert('Error', error.message)
+        return { error: error.message }
+      }
+      if (!data?.id) throw new Error('Missing cancellation confirmation')
+      return { data, error: null }
+    } catch {
+      const error = 'Unable to confirm cancellation. Refresh this order before trying again.'
+      Alert.alert('Cancellation not confirmed', error)
+      return { error }
     }
-    return { error: null }
+    })
   }
 
   const refresh = useCallback(async () => {
@@ -244,6 +264,7 @@ export function useOrders() {
     loading,
     isOnline,
     pendingCount,
+    heldCount,
     placeOrder,
     completeOrder,
     cancelOrder,
